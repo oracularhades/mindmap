@@ -1,0 +1,45 @@
+.messageInject {
+    display: flex;
+    flex-direction: column;
+    text-decoration: unset;
+}
+
+.messageInject a {
+    text-decoration: unset;
+    align-self: center;
+}
+
+.messageInject a:hover {
+    text-decoration: underline;
+}
+
+.message_inject_link {
+    font-weight: unset;
+    text-decoration: none;
+}
+
+.message_inject_link:hover {
+    text-decoration: underline;
+}
+
+.message_inject_line_div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.message_inject_mindmap_keyword {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-weight: bold;
+    color: rgb(93, 93, 255);
+    /* padding-left: 4px; */
+    padding-right: 4px;
+    column-gap: 2px;
+}
+
+.message_inject_mindmap_keyword img {
+    width: 30px;
+}

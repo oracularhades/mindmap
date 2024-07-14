@@ -1,0 +1,27 @@
+.home1 {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    overflow: hidden;
+}
+
+.home1_children {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    /* overflow: hidden; */
+}
+
+.mindmap {
+    display: flex;
+    flex-direction: row;
+    padding-left: 4px;
+}
+
+.mindmap .title {
+    font: caption;
+    font-size: 16px;
+    /* font-weight: bold; */
+    text-overflow: ellipsis;
+}

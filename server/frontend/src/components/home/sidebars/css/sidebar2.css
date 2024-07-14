@@ -1,0 +1,115 @@
+.sidebar2 {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 100vh;
+    background-color: rgb(222, 222, 222);
+    row-gap: 4px;
+
+    padding-top: 8px;
+    padding-bottom: 8px;
+    
+    overflow: hidden;
+}
+
+.sidebar2_sidebars_holder {
+    display: flex;
+    flex-direction: row;
+    /* align-items: center; */
+    /* width: 1200px; */
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.sidebar2_folders {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar2_items {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar2_topbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.sidebar2_topbar_right_buttons {
+    display: flex;
+    flex-direction: row;
+    column-gap: 2px;
+}
+
+.sidebar2_search {
+    /* box-shadow: 0 1px 1px 0 rgb(0, 0, 0); */
+    box-shadow: none;
+    border-radius: 0px;
+    background-color: rgb(212, 212, 212);
+}
+
+.sidebar2_inner_content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-bottom: 10px;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.sidebar2_mindmap_content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-top: 1px rgb(179, 179, 179) solid;
+}
+
+.results_for {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.folder_metadata {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 13px;
+    column-gap: 4px;
+
+    padding-left: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+
+    background-color: rgb(212, 212, 212);
+    border-bottom: 1px rgb(179, 179, 179) solid;
+}
+
+.folder_metadata .title {
+    width: 28ch;
+    max-height: 40px;
+    /* white-space: nowrap; */
+    overflow: hidden;
+    overflow-y: scroll;
+    text-overflow: ellipsis;
+}
+
+.folder_metadata .back_arrow {
+    width: 14px;
+    height: 14px;
+
+    padding: 4px;
+    border-radius: 12px;
+}

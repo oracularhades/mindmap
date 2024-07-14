@@ -1,0 +1,61 @@
+.mindmap_item_button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 4px;
+
+    width: 100%;
+    padding-left: 6px;
+    padding-right: 6px;
+
+    border-radius: 0px;
+    background: transparent;
+    border-bottom: 1px rgb(179, 179, 179) solid;
+    box-shadow: none;
+    font-weight: normal;
+    text-align: start;
+    text-overflow: ellipsis;
+}
+
+.mindmap_item_button img {
+    width: 14px;
+    height: 14px;
+}
+
+.mindmap_item_button_left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 6px;
+    color: inherit;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.mindmap_item_button_left .title {
+    display: inline-block;
+    font-size: 13px;
+    width: 23ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: inherit;
+
+    /* Make it easier for the user to hit the clickbox and right click. */
+    padding-top: 0.5px;
+    padding-bottom: 0.5px;
+}
+
+.mindmap_item_button_right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* .mindmap_item_button_right:hover ~ .mindmap_item_button_left,
+.mindmap_item_button_right img:hover ~ .mindmap_item_button_left {
+    background-color: red;
+    pointer-events: none;
+    font-size: 140px;
+} */

@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --port 7080",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@oracularhades/journal": "file:journal-npm",
+    "next": "^14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

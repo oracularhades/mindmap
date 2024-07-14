@@ -1,0 +1,62 @@
+.waterfall-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px;
+    row-gap: 4px;
+    height: 94vh;
+    overflow: scroll;
+}
+
+.item_div {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+}
+
+.item_text {
+    display: flex;
+    flex-direction: row;
+    column-gap: 4px;
+    font-size: 16px;
+}
+
+.waterfall_item_add_row {
+    /* visibility: collapse; */
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 4px;
+    width: fit-content;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 8px;
+    font-size: 12px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.waterfall_item_add_row img {
+    width: 18px;
+    height: 18px;
+}
+
+.new-row {
+    clear: both; /* Start on new line */
+}
+  
+.continue-row {
+    margin-left: auto; /* Continue on same line with space before */
+}
+  
+.arrow {
+    display: inline-block;
+}
