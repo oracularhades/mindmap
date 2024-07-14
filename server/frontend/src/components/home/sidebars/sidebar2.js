@@ -11,11 +11,6 @@ export default function Sidebar2(props) {
     const folder_list_trigger = useRef(null);
     const should_run = useRef(true);
 
-    let hidden_sidebar = {
-        visibility: "collapse",
-        width: 0
-    };
-
     function folder_change(folder_id) {
         set_folder(folder_id);
     }
