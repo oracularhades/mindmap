@@ -25,7 +25,7 @@ export default function Sidebar2(props) {
 
     return (
         <div className="sidebar2">
-            <Dialog_create_mindmap folder={folder}/>
+            <Dialog_create_mindmap folder={folder} on_success={() => { if (folder_list_trigger.current) { let function_v = folder_list_trigger.current; function_v(); } }}/>
             <Dialog_create_folder folder={folder} on_success={() => { if (folder_list_trigger.current) { let function_v = folder_list_trigger.current; function_v(); } }}/>
             <div className="sidebar2_topbar">
                 <ProfilePic hover={<UserCard1 user={{ name: "Example user", email: "user@example.com" }}>
