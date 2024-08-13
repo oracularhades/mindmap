@@ -1,11 +1,8 @@
 import './css/mindmap.css';
 import Home1 from "@/components/home/home";
-import Input_with_header from '@/components/input/input_with_header';
 import Waterfall from "@/components/internal_components/mindmap/waterfall/waterfall";
 import Layout_Topbar from "@/components/layout/layout_topbar";
-import LoadingSpinner from '@/components/miscellaneous/loadingspinner';
 import Loading from '@/components/navigating/in-progress/loading';
-import Switch_with_text from "@/components/switches/frames/rows/switch_with_text";
 import { build_nested_structure, creds } from "@/global";
 import { Journal } from "@oracularhades/journal";
 import { useRouter } from 'next/router';

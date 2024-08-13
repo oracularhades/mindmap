@@ -1,5 +1,7 @@
-import Page_frame_mindmap from "@/components/internal_components/page_frame/mindmap"
+import Home1 from "@/components/home/home"
 
 export default function Home() {
-    return Page_frame_mindmap();
+    return (
+        <Home1></Home1>
+    )
 }
