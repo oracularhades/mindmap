@@ -66,6 +66,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    mindmap_item_content (row_id) {
+        row_id -> Text,
+        parent -> Nullable<Text>,
+        item -> Nullable<Text>,
+        rank -> Nullable<BigInt>,
+        content -> Nullable<Text>,
+        created -> Nullable<BigInt>
+    }
+}
+
+diesel::table! {
     rover_processes (device_id) {
         device_id -> Text,
         process -> Text,

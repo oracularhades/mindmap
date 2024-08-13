@@ -1,0 +1,18 @@
+.keyword_inner {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+}
+
+.keyword_inner .search {
+    width: 400px;
+    border-radius: 0px;
+    padding: 10px;
+}
+
+.keyword_ul {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}

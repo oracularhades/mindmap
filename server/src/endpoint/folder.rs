@@ -26,15 +26,20 @@ pub async fn folder_list(mut db: Connection<Db>, params: &Query_string) -> Custo
     db = request_authentication_output.returned_connection;
 
     // format!() is not for values. It uses heavily vetted and sanitized values that are directly from the admin's configuration on local environment variables.
-    let result: Vec<Mindmap_folder> = sql_query(format!("SELECT id, title, owner, created, visibility FROM {} WHERE owner=? ORDER BY created DESC", sql.folder.unwrap()))
+    let folder_result: Vec<Mindmap_folder> = sql_query(format!("SELECT id, title, owner, created, visibility FROM {} WHERE owner=? ORDER BY created DESC", sql.folder.unwrap()))
     .bind::<Text, _>(request_authentication_output.user_id)
     .load::<Mindmap_folder>(&mut db)
     .await
     .expect("Something went wrong querying the DB.");
 
+    let mut folder_public: Vec<Mindmap_folder_public> = folder_result
+    .into_iter()
+    .map(Mindmap_folder_public::from)
+    .collect();
+
     status::Custom(Status::Ok, json!({
         "ok": true,
-        "data": result
+        "data": folder_public
     }))
 }
 

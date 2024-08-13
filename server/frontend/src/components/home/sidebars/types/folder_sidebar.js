@@ -1,10 +1,12 @@
-import '@/components/global.css';
 import { useEffect, useRef, useState } from "react";
+import '@/components/global.css';
+import './css/folder_sidebar.css';
 import { Journal } from "@oracularhades/journal";
 import { creds } from "@/global";
 import Mindmap_folder from "@/components/internal_components/mindmap/button/mindmap_folder";
 import Mindmap_item from "@/components/internal_components/mindmap/button/mindmap_item";
 import LoadingSpinner from "@/components/miscellaneous/loadingspinner";
+import Link from "next/link";
 
 export default function Sidebar_Folders(props) {
     if (props.sidebar_state && props.sidebar_state != "folders") {
@@ -54,7 +56,9 @@ export default function Sidebar_Folders(props) {
         if (should_run.current != true) { return; }
         should_run.current = false;
 
-        folder_list(null);
+        const params = new URLSearchParams(window.location.search);
+
+        folder_list(params.get("folder") ? params.get("folder") : null);
     });
 
     function folder_select(folder_id) {
@@ -111,8 +115,14 @@ export default function Sidebar_Folders(props) {
     return (
         <div className="sidebar2_folders" style={props.style}>
             {folder && <div className="folder_metadata">
-                <img className="back_arrow hover" src="/icons/arrow-left-solid.svg" onClick={() => { folder_back(); }}/>
-                <p className="title">{title}</p>
+                <div className='left'>
+                    <img className="back_arrow hover" src="/icons/arrow-left-solid.svg" onClick={() => { folder_back(); }}/>
+                    <p className="title">{title}</p>
+                </div>
+
+                <div className='right'>
+                    <Link href={`/import?${new URLSearchParams({ folder: folder.id }).toString()}`}><button className='import'><img src="/icons/import.svg"/></button></Link>
+                </div>
             </div>}
             <input className="sidebar2_search" placeholder={`Search '${title}'`} value={search_query} onChange={(e) => { set_search_query(e.target.value); }}/>
             <div className="sidebar2_inner_content">

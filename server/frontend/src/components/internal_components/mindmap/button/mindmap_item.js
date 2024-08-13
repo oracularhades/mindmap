@@ -14,14 +14,16 @@ export default function Mindmap_item(props) {
     }
 
     return (
-        <button className='mindmap_item_button hover'>
-            <div className='mindmap_item_button_left'>
-                <img src={"/icons/"+icons[data.visibility]}/>
-                <Link href={safe_link} className='mindmap_item_button_left title'>{data.title}</Link>
-            </div>
-            <div className='mindmap_item_button_right'>
-                <img id="hover_to_hide" className='hover' src="/icons/ellipsis-solid.svg"/>
-            </div>
-        </button>
+        <Link href={safe_link}>
+            <button className='mindmap_item_button hover'>
+                <div className='mindmap_item_button_left'>
+                    <img src={"/icons/"+icons[data.visibility]}/>
+                    <p className='mindmap_item_button_left title'>{data.title}</p>
+                </div>
+                <div className='mindmap_item_button_right'>
+                    <img id="hover_to_hide" className='hover' src="/icons/ellipsis-solid.svg"/>
+                </div>
+            </button>
+        </Link>
     )
 }

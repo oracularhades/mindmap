@@ -1,10 +1,9 @@
-import { Journal, getCreds } from "./index.js";
-import { getRoverApiURL } from "./routing.js";
-import general from "./general.js";
-import item_content from "./item/content.js";
+import { Journal, getCreds } from "../index.js";
+import { getRoverApiURL } from "../routing.js";
+import general from "../general.js";
 
 async function list(data) {
-    const request = await Journal(await getCreds()).fetch_wrapper(`${getRoverApiURL()}/item/list?${general().objectToParams(data)}`, {
+    const request = await Journal(await getCreds()).fetch_wrapper(`${getRoverApiURL()}/item/content/list?${general().objectToParams(data)}`, {
         method: 'GET', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -21,8 +20,8 @@ async function list(data) {
     return response;
 }
 
-async function update(data) {
-    const request = await Journal(await getCreds()).fetch_wrapper(`${getRoverApiURL()}/item/update`, {
+async function update(action, actions) {
+    const request = await Journal(await getCreds()).fetch_wrapper(`${getRoverApiURL()}/item/content/update`, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -32,7 +31,10 @@ async function update(data) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+            action: action,
+            actions: actions
+        })
     })
     
     const response = request.json();
@@ -40,5 +42,5 @@ async function update(data) {
     return response;
 }
 
-const item = { list, update, content: item_content };
-export default item;
+const item_content = { list, update };
+export default item_content;

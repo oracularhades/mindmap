@@ -1,0 +1,7 @@
+.item_page {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    row-gap: 6px;
+    height: 94vh;
+}

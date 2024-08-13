@@ -1,3 +1,5 @@
+import { Journal } from "@oracularhades/journal";
+
 function to_table(data) {
     let table_export = [];
     data.forEach((data) => {
@@ -75,4 +77,78 @@ function UrlThroughParser(rawurl) {
     }
 }
 
-export { to_table, redirect_to_login_if_required, creds, UrlThroughParser };
+async function get_file_content(file) {
+    const file_promises = [0].map(() => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (async (e) => {
+                resolve(e.target.result);
+            });
+            
+            reader.onerror = (error) => {
+                reject(error);
+            };
+
+            reader.readAsText(file);
+        });
+    });
+
+    const file_responses = await Promise.all(file_promises);
+    return file_responses;
+}
+
+function build_nested_structure(items) {
+    const itemMap = {};
+
+    // Create a map of items by their id
+    items.forEach(item => {
+        // Initialize each item with an empty `into` array
+        itemMap[item.row_id] = { ...item, into: [] };
+    });
+
+    // Build the nested structure
+    const result = [];
+    items.forEach(item => {
+        try {
+            if (item.parent) {
+                // Add this item directly to the parent's `into` array
+                itemMap[item.parent].into.push(itemMap[item.row_id]);
+            } else {
+                // If no parent, this is a top-level item, wrapped in its own array
+                result.push([itemMap[item.row_id]]);
+            }
+        } catch (error) {
+            console.log(items.indexOf(item), `parent:`, item.parent, `row_id:`, item.row_id, `| error `, error, `| thing itemMap `, itemMap);
+            throw error;
+        }
+    });
+
+    return result;
+}
+
+async function create_item(parent, rank, item_id, content) {
+    const data = {
+        action: "create",
+        parent,
+        rank,
+        item: item_id,
+        content
+    };
+
+    await Journal(creds()).item.content.update("create", [data]);
+}
+
+async function update_item(row_id, parent, rank, item, content) {
+    const data = {
+        action: "update",
+        row_id,
+        parent,
+        rank,
+        item: item_id,
+        content
+    };
+
+    await Journal(creds()).item.content.update("update", [data]);
+}
+
+export { to_table, redirect_to_login_if_required, creds, UrlThroughParser, get_file_content, build_nested_structure, create_item, update_item };

@@ -20,7 +20,7 @@ export default function MessageInject(props) {
     let run_count = -1;
 
     const message = text.split("\n").map((line) => {
-        return <div className="message_inject_line_div">→{line.split(":").map((data) => {
+        return <div className="message_inject_line_div">{line.split(":").map((data) => {
             run_count++;
 
             if (data.startsWith("@") && data.replaceAll("@").length > 0) {
@@ -35,10 +35,12 @@ export default function MessageInject(props) {
                 output = output.replaceAll(/[^a-zA-Z0-9!#$%^&*_]/g, ""); // use this for safety.
 
                 return <p id="donot"><Link id="donot" href={`/@${output}`} className="hoverUnderline greyA">@{output}</Link>{end}&nbsp;</p>
-            } else if (data.startsWith("~") && data.endsWith("~") && data.replaceAll("~", "").length > 0) {
+            // } else if (data.startsWith("~") && data.endsWith("~") && data.replaceAll("~", "").length > 0) {
+            } else if (data == "plant") {
                 return <div className="message_inject_mindmap_keyword">
                     <img id="donot" className='emoteImgImg disable-select' src={`https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Water-3D-balls-A.png/200px-Water-3D-balls-A.png`}/>
-                    <a href="https://example.com">{data.slice(1, data.length-1)}</a>
+                    {/* <a href="https://example.com">{data.slice(1, data.length-1)}</a> */}
+                    <a target="_blank" rel="noreferrer" href="https://example.com">{data}</a>
                 </div>
             } else if (props.showLinks == true && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(data) == true && data.startsWith("https")) {
                 if (props.hideThoughtLinks == true && data.startsWith("https://example.com/thought/") && /[^a-zA-Z0-9/:.]/g.test(data.content) == false && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(data) == true) {

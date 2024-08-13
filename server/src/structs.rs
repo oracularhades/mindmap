@@ -43,6 +43,27 @@ pub struct Item_update_body {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct Item_content_update_body {
+    pub actions: Option<Vec<Item_content_action>>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Item_content_action {
+    pub action: Option<String>,
+    pub item: Option<String>,
+    pub row_id: Option<String>,
+    pub parent: Option<String>,
+    pub rank: Option<i64>,
+    pub content: Option<String>,
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct Item_content_Authed_item_cache_check {
+    pub item_id: String,
+    pub user_id: String
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Authenticate_Body {
     pub attempt_id: String,
     pub code: Option<i64>,
@@ -85,6 +106,7 @@ pub struct Config_sql {
     pub magiclink: Option<String>,
     pub folder: Option<String>,
     pub item: Option<String>,
+    pub item_content: Option<String>,
     pub keyword: Option<String>,
     pub keyword_metadata: Option<String>
 }
@@ -211,6 +233,42 @@ impl From<Mindmap_item> for Mindmap_item_public {
             owner: mindmap_item.owner,
             created: mindmap_item.created,
             visibility: mindmap_item.visibility,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable, Selectable, QueryableByName)]
+#[serde(crate = "rocket::serde")]
+#[diesel(table_name = mindmap_item_content)]
+pub struct Mindmap_item_content {
+    #[serde(skip_deserializing)]
+    pub row_id: String,
+    pub parent: Option<String>,
+    pub item: Option<String>,
+    pub rank: Option<i64>,
+    pub content: Option<String>,
+    pub created: Option<i64>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Mindmap_item_content_public {
+    pub row_id: String,
+    pub parent: Option<String>,
+    pub item: Option<String>,
+    pub rank: Option<i64>,
+    pub content: Option<String>,
+    pub created: Option<i64>
+}
+
+impl From<Mindmap_item_content> for Mindmap_item_content_public {
+    fn from(mindmap_item: Mindmap_item_content) -> Self {
+        Mindmap_item_content_public {
+            row_id: mindmap_item.row_id,
+            parent: mindmap_item.parent,
+            item: mindmap_item.item,
+            rank: mindmap_item.rank,
+            content: mindmap_item.content,
+            created: mindmap_item.created,
         }
     }
 }

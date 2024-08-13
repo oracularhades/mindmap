@@ -17,3 +17,15 @@
     font-weight: bold;
     font-size: 14px;
 }
+
+.keywords_page {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    height: 100%;
+}
+
+.keywords_page .top {
+    align-items: center;
+    justify-content: space-between;
+}

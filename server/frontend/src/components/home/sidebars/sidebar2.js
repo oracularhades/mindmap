@@ -5,6 +5,7 @@ import UserCard1 from "@/components/user/user_cards/user_card1";
 import Dialog_create_mindmap from "@/components/internal_components/mindmap/dialog/create_mindmap";
 import Dialog_create_folder from "@/components/internal_components/mindmap/dialog/create_folder";
 import Sidebar_Folders from "./types/folder_sidebar";
+import Link from "next/link";
 
 export default function Sidebar2(props) {
     const [folder, set_folder] = useState(null); // folder should be set by folder_change via props in <Sidebar_Folders/>
@@ -32,7 +33,7 @@ export default function Sidebar2(props) {
                     <button>Logout</button>
                 </UserCard1>}/>
                 <div className="sidebar2_topbar_right_buttons">
-                    <img style={{ width: 20, height: 20, padding: 2 }} src="/icons/words.svg" className="hover" onClick={() => { document.getElementById("dialog_create_mindmap").showModal(); }}/>
+                    <Link href="/keyword"><img style={{ width: 20, height: 20, padding: 2 }} src="/icons/words.svg" className="hover"/></Link>
                     <img style={{ width: 20, height: 20, padding: 2 }} src="/icons/folder-create.svg" className="hover" onClick={() => { document.getElementById("dialog_create_folder").showModal(); }}/>
                     <img style={{ width: 20, height: 20, padding: 2 }} src="/icons/plus-solid.svg" className="hover" onClick={() => { document.getElementById("dialog_create_mindmap").showModal(); }}/>
                 </div>

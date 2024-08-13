@@ -75,22 +75,24 @@ Input {
 }
 
 button {
+  /* Flex fixes a stupid alignment bug with images and buttons */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   font-weight: bold;
   border: none;
   background-color: rgb(239, 239, 239);
   box-shadow: 0 1px 2px 0 rgb(0, 0, 0);
-  padding-top: 8px;
-  padding-bottom: 8px;
+  /* padding-top: 8px; */
+  /* padding-bottom: 8px; */
+  padding: 8px;
   border-radius: 4px;
   font-size: 16px;
 }
 
 button:hover {
   filter: brightness(0.8);
-}
-
-.button img {
-  width: 22px;
 }
 
 .secondary_element {
@@ -163,4 +165,59 @@ a {
   justify-content: center;
   height: 100%;
   /* background-color: red; */
+}
+
+.top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+}
+
+.non-centered-button {
+  text-align: start;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+
+.editing_container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 4px;
+  width: fit-content;
+  padding: 5px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.file_net {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  /* border: 3px dashed #6990F2; */
+  border: 3px dashed #adadad;
+}
+
+.file_net p {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }

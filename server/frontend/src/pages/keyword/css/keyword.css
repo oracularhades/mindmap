@@ -1,0 +1,9 @@
+.keyword_page {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+}
+
+.keyword_page .settings .backdrop_content {
+    row-gap: 8px;
+}

@@ -17,13 +17,23 @@ pub mod globals {
 
 pub mod internal {
     pub mod folder;
-    pub mod item;
+    pub mod item {
+        pub mod index;
+        pub mod content;
+    }
+    pub mod keyword {
+        pub mod keyword;
+        pub mod metadata;
+    }
 }
 
 pub mod endpoint {
     pub mod folder;
-    pub mod item;
-    pub mod user;
+    pub mod item {
+        pub mod index;
+        pub mod content;
+    }
+    // pub mod user;
 }
 
 // use diesel::r2d2;
