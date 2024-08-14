@@ -82,6 +82,7 @@ export default function Keywords() {
             };
 
             const response = await Journal(creds()).keyword.update([ body ]);
+            alert("Saved successfully");
         } catch (error) {
             alert(error.message);
             throw error;
