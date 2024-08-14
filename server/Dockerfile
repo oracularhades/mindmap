@@ -59,6 +59,7 @@ RUN unzip -d /mindmap-server /mindmap-server/guard.zip
 # RUN chmod +x /mindmap-server/guard/mindmap-server
 
 # Build
+RUN cargo upgrade
 RUN cargo build --release
 
 # Remove frontend nextjs source files, they just un-necessarily take up lots of space.
