@@ -65,7 +65,7 @@ export default function Dialog_create_folder(props) {
                 </select>
             </Input_row_header>
 
-            <Button1 onClick={() => {create_folder}}>Submit</Button1>
+            <Button1 onClick={create_folder}>Submit</Button1>
         </Dialog_Frame>
     )
 }
