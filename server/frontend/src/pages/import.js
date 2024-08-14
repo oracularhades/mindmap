@@ -38,8 +38,6 @@ export default function Import() {
 
         let child_identifier = null;
 
-        console.log("CONTENT-Full", content)
-
         content[0].replaceAll("\r", "").split("\n").map((element) => {
             if (element.trim().length == 0) {
                 next_is_child = false;
@@ -136,6 +134,8 @@ export default function Import() {
             let new_data = await things(item_response.item_id);
 
             await Journal(creds()).item.content.update("create", new_data);
+
+            window.location.reload();
         } catch (error) {
             alert(error.message);
             throw error;
