@@ -6,7 +6,7 @@ import "./css/home.css"
 export default function Home1(props) {
     return (
         <Base className="home1">
-            <Sidebar2/>
+            <Sidebar2 slim_for_back={props.slim_for_back}/>
             <div className="home1_children">
                 <div className={props.className} style={props.style}>
                     {props.children}

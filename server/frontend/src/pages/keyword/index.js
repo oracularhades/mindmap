@@ -4,31 +4,52 @@ import "@/components/global.css";
 import Home1 from "@/components/home/home";
 import { useEffect, useRef, useState } from "react";
 import Keyword_listing_component1 from "@/components/internal_components/keyword/listing/keyword_listing_component1";
+import { Journal } from '@oracularhades/journal';
+import { creds } from '@/global';
+import Link from 'next/link';
+import Loading from '@/components/navigating/in-progress/loading';
 
 export default function Keywords() {
     const should_run = useRef(true);
     const [data, set_data] = useState([]);
+    const [loading, set_loading] = useState(true);
+
+    async function get_keywords() {
+        set_loading(true);
+
+        const response = await Journal(creds()).keyword.list();
+        set_data(response.data);
+
+        set_loading(false);
+    }
 
     useEffect(() => {
         if (should_run.current != true) { return; }
         should_run.current = false;
 
-        // get_keywords();
+        get_keywords();
+    });
+
+    const keyword_ul = data.map((keyword) => {
+        return (
+            <Keyword_listing_component1 data={{ id: keyword.id, keywords: keyword.keywords, image: keyword.external_image || keyword.image, description: keyword.description, created: keyword.created }}/>
+        )
     });
 
     return (
-        <Home1 className="keywords_page home_padding">
+        <Home1 className="keywords_page home_padding" slim_for_back={true}>
             <div className="top">
                 <h1>Keywords</h1>
-                <button>Create keyword</button>
+                <Link href="/keyword/create"><button>Create keyword</button></Link>
             </div>
 
-            <div className='keyword_inner'>
+            {loading == false && <div className='keyword_inner'>
                 <input placeholder='Search' className='search'/>
                 <div className="keyword_ul">
-                    <Keyword_listing_component1 data={{ keywords: ["flower", "flowers"], alias: "flower", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flower_poster_2.jpg/660px-Flower_poster_2.jpg", description: "A flower, also known as a bloom or blossom, is the reproductive structure found in flowering plants (plants of the division Angiospermae). Flowers consist of a combination of vegetative organs - sepals that enclose and protect the developing flower. These petals attract pollinators, and reproductive organs that produce gametophytes, which in flowering plants produce gametes. The male gametophytes, which produce sperm, are enclosed within pollen grains produced in the anthers. The female gametophytes are contained within the ovules produced in the carpels." }}/>
+                    {keyword_ul}
                 </div>
-            </div>
+            </div>}
+            {loading == true && <Loading/>}
         </Home1>
     )
 }

@@ -5,122 +5,217 @@ use rocket::http::Status;
 
 use rocket_db_pools::{Database, Connection};
 use rocket_db_pools::diesel::{MysqlPool, prelude::*};
+use diesel::sql_query;
+use diesel::sql_types::*;
 
-use crate::global::request_authentication;
+use crate::global::{generate_random_id, get_epoch, is_null_or_whitespace, request_authentication};
+use crate::internal::folder::folder_get;
+use crate::internal::keyword::keyword::keyword_get;
 use crate::responses::*;
 use crate::structs::*;
 use crate::tables::*;
+use crate::SQL_TABLES;
 
-// TODO: none of this, none of it, is finished.
+use url::Url;
 
-#[get("/keyword/list")]
-pub async fn keyword_list(mut db: Connection<Db>, params: &Query_string) -> Custom<Value> {
-    let request_authentication_output: Request_authentication_output = match request_authentication(db, None, params, "/process/list", false).await {
+#[get("/list?<ids>")]
+pub async fn keyword_list(mut db: Connection<Db>, params: &Query_string, ids: Option<String>) -> Custom<Value> {
+    let request_authentication_output: Request_authentication_output = match request_authentication(db, None, params, "/keyword/list", false).await {
         Ok(data) => data,
         Err(e) => return status::Custom(Status::Unauthorized, not_authorized())
     };
     db = request_authentication_output.returned_connection;
 
-    let results = rover_processes::table
-        // .filter(rover_network::location.eq("onboard_client"))
-        .select(Rover_processes::as_select())
-        .load(&mut db)
-        .await.expect("Query failed");
-
-    let mut item_result_public: Vec<Mindmap_item_public> = item_result
-        .into_iter()
-        .map(Mindmap_item_public::from)
+    let mut ids_split: Vec<String> = Vec::new();
+    if (ids.is_none() == false) {
+        ids_split = ids.unwrap().split(',')
+        .map(|s| s.to_string())
         .collect();
+    }
+
+    let (rendered_keywords, error_to_respond_with, keyword_db) = crate::internal::keyword::keyword::keyword_list(db, request_authentication_output.user_id.clone(), Some(ids_split)).await.expect("Failed to get keyword_list");
+    db = keyword_db;
+    
+    if (error_to_respond_with.is_none() == false) {
+        return status::Custom(Status::BadRequest, error_to_respond_with.unwrap());
+    }
+
+    let rendered_keywords_public: Vec<Rendered_keyword_public> = rendered_keywords
+    .into_iter()
+    .map(Rendered_keyword_public::from)
+    .collect();
 
     status::Custom(Status::Ok, json!({
         "ok": true,
-        "data": results
+        "data": rendered_keywords_public
     }))
 }
 
 #[post("/update", format = "application/json", data = "<body>")]
-pub async fn keyword_update(mut db: Connection<Db>, params: &Query_string, mut body: Json<Folder_update_body>) -> Custom<Value> {
+pub async fn keyword_update(mut db: Connection<Db>, params: &Query_string, mut body: Json<Keyword_update_body>) -> Custom<Value> {
     let sql: Config_sql = (&*SQL_TABLES).clone();
     
-    let request_authentication_output: Request_authentication_output = match request_authentication(db, None, params, "/folder/update", false).await {
+    let request_authentication_output: Request_authentication_output = match request_authentication(db, None, params, "/keyword/update", false).await {
         Ok(data) => data,
         Err(e) => return status::Custom(Status::Unauthorized, not_authorized())
     };
     db = request_authentication_output.returned_connection;
 
     // TODO: There should be an action logic pipeline.
-    
-    // Normallly it would matter what the value of unwrap_or was here, since we're trying to check the original value, in this case checking if it's None, but it doesn't matter here because there is a check for 'create' or 'update'.
-    let action = body.action.clone().unwrap_or(String::new());
-    if (action != "create" && action != "update") {
-        return status::Custom(Status::BadRequest, error_message("body.action must be create/update."));
-    }
-    if (action == "update" && body.id.is_none() == true) {
-        return status::Custom(Status::BadRequest, error_message("body.id must be specified when body.action='update'"));
-    }
-    if (action == "create" && body.id.is_none() == false) {
-        return status::Custom(Status::BadRequest, error_message("body.id cannot be specified when body.action='create'"));
-    }
 
-    // We don't care if body.description is provided, it's not required, but we do want to check the length.
-    let description = body.description.clone();
-    if (description.is_none() == false && description.len() > 200000) {
-        return status::Custom(Status::BadRequest, error_message("body.description cannot be more than 200000 characters."));
+    let metadata_actions = body.actions.clone().unwrap();
+    if (metadata_actions.len() == 0) {
+        return status::Custom(Status::BadRequest, error_message("body.actions exists but has no items. You must provide at least 1 action."));
+    }
+    // For now, limit metadata_actions to 10, because they can have a lot of keywords.
+    if (metadata_actions.len() >= 10) {
+        return status::Custom(Status::BadRequest, error_message("body.actions cannot have more than 10 items."));
     }
     
-    // We don't care if body.description is provided, it's not required, but we do want to check the length.
-    let information_link = body.information_link.clone();
-    if (information_link.is_none() == false && information_link.len() > 200000) {
-        return status::Custom(Status::BadRequest, error_message("body.description cannot be more than 200000 characters."));
-    }
-
-    // TODO: Ensure keyword has no spaces, and is correctly formatted, with a length limit.
-    if (body.keywords.is_none() == true) {
-        return status::Custom(Status::BadRequest, error_message("body.keywords is null or whitespace."));
-    }
-    if (body.keywords.len() == 0) {
-        return status::Custom(Status::BadRequest, error_message("body.keywords exists but has no items. You must provide at least 1 keyword."));
-    }
-    let keywords = body.keywords.clone();
-
-    let mut keyword_metadata = generate_random_id();
-    // let number: i32 = rand::thread_rng().gen_range(0..999999);
-
-    if (action == "update") {
-        // We know 'body.id' exists, because we checked when validating the 'body.action'.
-        folder_id = body.id.clone().unwrap(); 
-
-        let (folder, error_to_respond_with, folder_db) = folder_get(db, folder_id.clone(), Some(request_authentication_output.user_id.clone())).await.expect("Failed to get folder.");  
-        db = folder_db;
-
-        if (folder.is_none() == true) {
-            return status::Custom(Status::BadRequest, error_message(&format!("Folder does not exist: '{}'", folder_id.clone())));
+    for action_data in metadata_actions.iter().clone() {
+        // Normallly it would matter what the value of unwrap_or was here, since we're trying to check the original value, in this case checking if it's None, but it doesn't matter here because there is a check for 'create' or 'update'.
+        let action_type = action_data.action.clone().unwrap_or(String::new());
+        if (action_type != "create" && action_type != "update") {
+            return status::Custom(Status::BadRequest, error_message("body.actions.action must be create/update."));
+        }
+        if (action_type == "update" && action_data.id.is_none() == true) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.id must be specified when body.actions.action='update'"));
+        }
+        if (action_type == "create" && action_data.id.is_none() == false) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.id cannot be specified when body.actions.action='create'"));
         }
 
-        let result: Vec<Mindmap_folder> = sql_query(&format!("UPDATE {} SET title=?, folder=?, visibility=? WHERE id=? AND owner=?", sql.folder.unwrap()))
-        .bind::<Text, _>(title.clone())
-        .bind::<Nullable<Text>, _>(inner_folder.clone())
-        .bind::<Text, _>(visibility.clone())
-        .bind::<Text, _>(folder_id.clone())
-        .bind::<Text, _>(request_authentication_output.user_id.clone())
-        .load::<Mindmap_folder>(&mut db)
-        .await
-        .expect("Something went wrong querying the DB.");
-    } else if (action == "create") {
-        let result: Vec<Mindmap_folder> = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", sql.folder.unwrap()))
-        .bind::<Text, _>(folder_id.clone())
-        .bind::<Text, _>(title.clone())
-        .bind::<Nullable<Text>, _>(inner_folder.clone())
-        .bind::<Text, _>(visibility.clone())
-        .bind::<Text, _>(request_authentication_output.user_id.clone())
-        .bind::<BigInt, _>(get_epoch())
-        .load::<Mindmap_folder>(&mut db)
-        .await
-        .expect("Something went wrong querying the DB.");
+        // We don't care if body.description is provided, it's not required, but we do want to check the length.
+        let description = action_data.description.clone();
+        if (description.is_none() == false && description.clone().unwrap().len() > 200000) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.description cannot be more than 200000 characters."));
+        }
+        
+        let external_link = action_data.external_link.clone();
+        if (external_link.is_none() == false && external_link.clone().unwrap().len() > 4000) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.external_link cannot be more than 4000 characters."));
+        }
+        if (external_link.is_none() == false && Url::parse(&external_link.clone().unwrap()).is_ok() == false) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.external_link is an invalid URL."));
+        }
+
+        // TODO: If exists, check this is a valid image id.
+        let image = action_data.image.clone();
+
+        // TODO: If exists, check this is a valid URL via an image format, and check the URL isn't ridiculously long.
+        let external_image = action_data.external_image.clone();
+        if (external_image.is_none() == false && external_image.clone().unwrap().len() > 4000) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.external_image cannot be more than 4000 characters."));
+        }
+        if (external_image.is_none() == false && Url::parse(&external_image.clone().unwrap()).is_ok() == false) {
+            return status::Custom(Status::BadRequest, error_message("body.actions.external_image is an invalid URL."));
+        }
+
+        // TODO: Ensure keyword have no spaces, and is correctly formatted, with a length limit.
+        if (action_data.keywords.is_none() == true) {
+            return status::Custom(Status::BadRequest, error_message("body.keywords is null or whitespace."));
+        }
+        let keywords = action_data.keywords.clone().unwrap();
+
+        // TODO: Implement a check, that checks if action_data.keywords + existing keywords is over 100.
+        // if (action_data.keywords.len() >= 40) {
+        //     return status::Custom(Status::BadRequest, error_message("action_data.keywords cannot have more than 40 items."));
+        // }
+
+        let mut keyword_metadata = generate_random_id();
+        // TODO: Check keyword_metdata item exists when updating!
+        // TODO: WHEN ADDING SPECIFIED KEYWORDS FOR AN ITEM (action_data.item) AND VERIFY THE USER HAS OWNER ACCESS TO IT.
+
+        // Keyword action basic validation checks.
+        for keyword_action_data in keywords.iter().clone() {
+            let mut keyword_action = keyword_action_data.clone();
+            // TODO: There should be an action logic pipeline.
+            // Normallly it would matter what the value of unwrap_or was here, since we're trying to check the original value, in this case checking if it's None, but it doesn't matter here because there is a check for 'create' or 'update'.
+            let action_type = keyword_action.action.clone().unwrap_or(String::new());
+            if (action_type != "create" && action_type != "remove") {
+                return status::Custom(Status::BadRequest, error_message("action_data.actions.action must be create/remove."));
+            }
+
+            // removed because we always require action.word
+            // if (action_type == "update" && is_null_or_whitespace(action.row_id.clone()) == true) {
+            //     return status::Custom(Status::BadRequest, error_message("action_data.actions.id must be specified when action_data.keywords.actions.action='update'"));
+            // }
+            // if (action_type == "create" && is_null_or_whitespace(action.row_id.clone()) == false) {
+            //     return status::Custom(Status::BadRequest, error_message("action_data.actions.id cannot be specified when action_data.keywords.actions.action='create'"));
+            // }
+
+            if (is_null_or_whitespace(keyword_action.word.clone()) == true) {
+                return status::Custom(Status::BadRequest, error_message("action_data.keywords.actions.word is null or whitespace."));
+            }
+
+            let word = keyword_action.word.clone().expect("missing action.word");
+            if (word.len() > 1000) {
+                return status::Custom(Status::BadRequest, error_message("action_data.keywords.actions.word cannot be longer than 1000 characters."));
+            }
+        }
+
+        if (action_type == "update") {
+            // We know 'body.id' exists, because we checked when validating the 'body.action'.
+            keyword_metadata = action_data.id.clone().unwrap(); 
+
+            let (folder, error_to_respond_with, folder_db) = keyword_get(db, keyword_metadata.clone(), Some(request_authentication_output.user_id.clone())).await.expect("Failed to get folder.");  
+            db = folder_db;
+
+            if (folder.is_none() == true) {
+                return status::Custom(Status::BadRequest, error_message(&format!("Keyword metadata does not exist: '{}'", keyword_metadata.clone())));
+            }
+
+            sql_query(&format!("UPDATE {} SET description=?, external_link=?, external_image=? WHERE id=? AND owner=?", sql.keyword_metadata.clone().unwrap()))
+            .bind::<Nullable<Text>, _>(description.clone())
+            .bind::<Nullable<Text>, _>(external_link.clone())
+            .bind::<Nullable<Text>, _>(external_image.clone())
+            .bind::<Text, _>(keyword_metadata.clone())
+            .bind::<Text, _>(request_authentication_output.user_id.clone())
+            .execute(&mut db)
+            .await
+            .expect("Something went wrong querying the DB.");
+        } else if (action_type == "create") {
+            sql_query(&format!("INSERT INTO {} (id, owner, description, external_link, external_image, created) VALUES (?, ?, ?, ?, ?, ?)", sql.keyword_metadata.clone().unwrap()))
+            .bind::<Text, _>(keyword_metadata.clone())
+            .bind::<Text, _>(request_authentication_output.user_id.clone())
+            .bind::<Nullable<Text>, _>(description.clone())
+            .bind::<Nullable<Text>, _>(external_link.clone())
+            .bind::<Nullable<Text>, _>(external_image.clone())
+            .bind::<BigInt, _>(get_epoch())
+            .execute(&mut db)
+            .await
+            .expect("Something went wrong querying the DB.");
+        }
+
+        // Write data.
+        for keyword_action in keywords.iter().clone() {
+            let word = keyword_action.word.clone().unwrap();
+
+            let action_type = keyword_action.action.clone().unwrap();
+            if (action_type == "create") {
+                sql_query(&format!("INSERT INTO {} (keyword, owner, keyword_metadata, created) VALUES (?, ?, ?, ?)", sql.keyword.clone().unwrap()))
+                .bind::<Text, _>(word.clone())
+                .bind::<Text, _>(request_authentication_output.user_id.clone())
+                .bind::<Nullable<Text>, _>(keyword_metadata.clone())
+                .bind::<BigInt, _>(get_epoch())
+                .execute(&mut db)
+                .await
+                .expect("Something went wrong querying the DB.");
+            } else if (action_type == "remove") {
+                sql_query(&format!("DELETE FROM {} WHERE keyword=? AND keyword_metadata=? AND owner=?", sql.keyword.clone().unwrap()))
+                .bind::<Nullable<Text>, _>(word.clone())
+                .bind::<Text, _>(keyword_metadata.clone())
+                .bind::<Text, _>(request_authentication_output.user_id.clone())
+                .execute(&mut db)
+                .await
+                .expect("Something went wrong querying the DB.");
+            }
+        }
     }
 
+    // TODO: Check keyword isn't being used elsewhere.
+
     return status::Custom(Status::Ok, json!({
-        "ok": true,
-        "folder_id": folder_id.clone()
+        "ok": true
     }));
 }

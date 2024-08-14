@@ -134,8 +134,13 @@ async function create_item(parent, rank, item_id, content) {
         item: item_id,
         content
     };
-
-    await Journal(creds()).item.content.update("create", [data]);
+    
+    try {
+        await Journal(creds()).item.content.update("create", [data]);
+    } catch (error) {
+        alert(error.message);
+        throw error;
+    }
 }
 
 async function update_item(row_id, parent, rank, item, content) {
@@ -148,7 +153,12 @@ async function update_item(row_id, parent, rank, item, content) {
         content
     };
 
-    await Journal(creds()).item.content.update("update", [data]);
+    try {
+        await Journal(creds()).item.content.update("update", [data]);
+    } catch (error) {
+        alert(error.message);
+        throw error;
+    }
 }
 
 export { to_table, redirect_to_login_if_required, creds, UrlThroughParser, get_file_content, build_nested_structure, create_item, update_item };

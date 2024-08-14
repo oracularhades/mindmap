@@ -77,6 +77,43 @@ diesel::table! {
 }
 
 diesel::table! {
+    #[sql_name = "keyword"]
+    keywords (keyword) {
+        keyword -> Text,
+        owner -> Nullable<Text>,
+        item -> Nullable<Text>,
+        created -> Nullable<BigInt>,
+        keyword_metadata -> Text,
+    }
+}
+
+diesel::table! {
+    keyword_metadata (id) {
+        id -> Text,
+        owner -> Nullable<Text>,
+        description -> Nullable<Text>,
+        external_link -> Nullable<Text>,
+        image -> Nullable<Text>,
+        external_image -> Nullable<Text>,
+        item -> Nullable<Text>,
+        created -> Nullable<BigInt>
+    }
+}
+
+diesel::table! {
+    keyword_sql (id) {
+        id -> Nullable<Text>,
+        keywords -> Nullable<Text>,
+        description -> Nullable<Text>,
+        image -> Nullable<Text>,
+        external_image -> Nullable<Text>,
+        external_link -> Nullable<Text>,
+        owner -> Nullable<Text>,
+        created -> Nullable<BigInt>
+    }
+}
+
+diesel::table! {
     rover_processes (device_id) {
         device_id -> Text,
         process -> Text,
@@ -92,3 +129,5 @@ diesel::table! {
         pathname -> Text,
     }
 }
+
+diesel::allow_tables_to_appear_in_same_query!(keyword_metadata, keywords);

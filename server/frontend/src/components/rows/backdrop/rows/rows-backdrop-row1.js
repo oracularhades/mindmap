@@ -4,13 +4,14 @@ import './css/rows-backdrop-row1.css';
 import Link from 'next/link';
 
 export default function Rows_backdrop_row1(props) {
-    let href = "";
+    let href = null;
     if (props.href) {
         href = props.href;
     }
-    return (
-        <Link href={href} className='Rows_backdrop_row1'>
-            <button onClick={props.onClick} disabled={props.disabled}>
+
+    const Content = ((content_props) => {
+        return (
+            <button onClick={props.onClick} disabled={props.disabled} className={content_props.className}>
                 <div className='Rows_backdrop_row1_left'>
                     {props.icon && typeof props.icon == "string" && <img className='' src={props.icon}/>}
                     {props.icon && typeof props.icon != "string" && props.icon}
@@ -29,6 +30,20 @@ export default function Rows_backdrop_row1(props) {
                     </button> */}
                 </div>
             </button>
-        </Link>
-    )
+        )
+    });
+    
+    if (href) {
+        return (
+            <Link href={href} className='Rows_backdrop_row1'>
+                <Content/>
+            </Link>
+        )
+    } else {
+        return (
+            <div className="Rows_backdrop_row1">
+                <Content/>
+            </div>
+        )
+    }
 }

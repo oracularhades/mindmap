@@ -29,11 +29,11 @@ pub mod internal {
 
 pub mod endpoint {
     pub mod folder;
+    pub mod keyword;
     pub mod item {
         pub mod index;
         pub mod content;
     }
-    // pub mod user;
 }
 
 // use diesel::r2d2;

@@ -24,7 +24,13 @@ export default function Sidebar_Folders(props) {
     async function folder_list(folder_id) {
         set_loading(true);
         
-        let response = await Journal(creds()).item.list({ folder: folder_id });
+        let response = null;
+        try {
+            response = await Journal(creds()).item.list({ folder: folder_id });
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        }
 
         set_data(response);
         set_folder(response.folder);

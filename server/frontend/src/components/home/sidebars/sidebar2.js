@@ -24,6 +24,14 @@ export default function Sidebar2(props) {
         // set_folder(params.get("folder"));
     });
 
+    if (props.slim_for_back == true) {
+        return (
+            <button onClick={() => { window.history.back(); }} className="sidebar2 sidebar2_slim">
+                <img src="/icons/arrow-left-solid.svg"/>
+            </button>
+        )
+    }
+
     return (
         <div className="sidebar2">
             <Dialog_create_mindmap folder={folder} on_success={() => { if (folder_list_trigger.current) { let function_v = folder_list_trigger.current; function_v(); } }}/>

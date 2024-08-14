@@ -68,5 +68,6 @@ pub fn stage() -> AdHoc {
         .mount("/api/folder", routes![crate::endpoint::folder::folder_update]) // crate::endpoint::folder::folder_list (deprecated)
         .mount("/api/item", routes![crate::endpoint::item::index::item_list, crate::endpoint::item::index::item_update])
         .mount("/api/item/content", routes![crate::endpoint::item::content::item_content_list, crate::endpoint::item::content::item_content_update])
+        .mount("/api/keyword", routes![crate::endpoint::keyword::keyword_list, crate::endpoint::keyword::keyword_update])
     })
 }

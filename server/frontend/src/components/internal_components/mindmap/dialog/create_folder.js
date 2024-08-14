@@ -35,7 +35,12 @@ export default function Dialog_create_folder(props) {
             inner_folder: props.folder
         }
 
-        await Journal(creds()).folder.update(data);
+        try {
+            await Journal(creds()).folder.update(data);
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        }
 
         set_folder_name("");
         set_visibility(default_visibility);

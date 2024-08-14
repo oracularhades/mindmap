@@ -22,8 +22,13 @@ export default function Users() {
     });
 
     async function get_users() {
-        const response = await Journal(creds()).user.list();
-        set_data(response.data);
+        try {
+            const response = await Journal(creds()).user.list();
+            set_data(response.data);
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        }
     }
 
     async function user_created() {

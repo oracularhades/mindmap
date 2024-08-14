@@ -13,7 +13,7 @@ export default function Selector1(props) {
     //   return;
     // }
 
-    // props.onImageId({ image_id: image_upload[0].id, image_url: null });
+    // props.onImage({ image_id: image_upload[0].id, image_url: null });
   }
 
   async function upload_image_link() {
@@ -21,14 +21,13 @@ export default function Selector1(props) {
     if (!url) { return };
 
     document.getElementById(random).src = url;
-    props.onImageId({ image_id: null, image_url: url });
+    props.onImage({ image_id: null, image_url: url });
   }
 
   async function clear_upload() {
     image_data.current = "clear";
     document.getElementById(random).src = null;
-    props.onImageId({ image_id: null, image_url: null });
-
+    props.onImage({ image_id: null, image_url: null });
   }
 
   return (

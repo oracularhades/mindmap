@@ -20,9 +20,14 @@ export default function Page_frame_mindmap() {
     async function get_item_content() {
         set_loading(true);
         
-        const response = await Journal(creds()).item.content.list({ item: router.query.id });
-        set_item(response.item);
-        set_rows(response.data);
+        try {
+            const response = await Journal(creds()).item.content.list({ item: router.query.id });
+            set_item(response.item);
+            set_rows(response.data);
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        }
 
         set_loading(false);
     }
@@ -121,12 +126,6 @@ export default function Page_frame_mindmap() {
     //     ]
     // ];
 
-    if (loading == true) {
-        return (
-            <Loading/>
-        )
-    }
-
     return (
         <Home1>
             {item && <Layout_Topbar>
@@ -135,14 +134,15 @@ export default function Page_frame_mindmap() {
                 </div>
             </Layout_Topbar>}
 
-            <div className='item_page'>
+            {loading == false && <div className='item_page'>
                 <div className='editing_container secondary_element'>
                     <input type="checkbox" checked={editing} onChange={() => { set_editing(!editing); }}/>
                     <p>Editing</p>
                 </div>
 
                 <Waterfall data={build_nested_structure(rows)} item={item} refresh={get_item_content} editing={editing}/>
-            </div>
+            </div>}
+            {loading == true && <Loading/>}
         </Home1>
     )
 }

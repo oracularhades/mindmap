@@ -43,6 +43,28 @@ pub struct Item_update_body {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct Keyword_update_body {
+    pub actions: Option<Vec<Keyword_metadata_action>>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Keyword_metadata_action {
+    pub action: Option<String>,
+    pub id: Option<String>,
+    pub description: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub external_link: Option<String>,
+    pub keywords: Option<Vec<Keyword_action>>
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct Keyword_action {
+    pub action: Option<String>,
+    pub word: Option<String>
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Item_content_update_body {
     pub actions: Option<Vec<Item_content_action>>,
 }
@@ -269,6 +291,121 @@ impl From<Mindmap_item_content> for Mindmap_item_content_public {
             rank: mindmap_item.rank,
             content: mindmap_item.content,
             created: mindmap_item.created,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable, Selectable, QueryableByName)]
+#[serde(crate = "rocket::serde")]
+#[diesel(table_name = keyword_sql)]
+pub struct Keyword_sql {
+    pub id: Option<String>,
+    pub keywords: Option<String>,
+    pub description: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub external_link: Option<String>,
+    pub owner: Option<String>,
+    pub created: Option<i64>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Rendered_keyword {
+    pub id: String,
+    pub owner: Option<String>,
+    pub description: Option<String>,
+    pub external_link: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub item: Option<String>,
+    pub keywords: Option<Vec<String>>,
+    pub created: Option<i64>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Rendered_keyword_public {
+    pub id: String,
+    pub description: Option<String>,
+    pub external_link: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub keywords: Option<Vec<String>>,
+    pub created: Option<i64>
+}
+
+impl From<Rendered_keyword> for Rendered_keyword_public {
+    fn from(data: Rendered_keyword) -> Self {
+        Rendered_keyword_public {
+            id: data.id,
+            description: data.description,
+            external_link: data.external_link,
+            image: data.image,
+            external_image: data.external_image,
+            keywords: data.keywords,
+            created: data.created,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable, Selectable, QueryableByName)]
+#[serde(crate = "rocket::serde")]
+#[diesel(table_name = keyword_metadata)]
+pub struct Keyword_metadata {
+    pub id: String,
+    pub owner: Option<String>,
+    pub description: Option<String>,
+    pub external_link: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub item: Option<String>,
+    pub created: Option<i64>
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Keyword_metadata_public {
+    pub id: String,
+    pub description: Option<String>,
+    pub external_link: Option<String>,
+    pub image: Option<String>,
+    pub external_image: Option<String>,
+    pub created: Option<i64>
+}
+
+impl From<Keyword_metadata> for Keyword_metadata_public {
+    fn from(data: Keyword_metadata) -> Self {
+        Keyword_metadata_public {
+            id: data.id,
+            description: data.description,
+            external_link: data.external_link,
+            image: data.image,
+            external_image: data.external_image,
+            created: data.created,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable, Insertable, Selectable, QueryableByName)]
+#[serde(crate = "rocket::serde")]
+#[diesel(table_name = keywords)]
+pub struct Keyword {
+    pub keyword: String,
+    pub owner: Option<String>,
+    pub item: Option<String>,
+    pub created: Option<i64>,
+    pub keyword_metadata: String
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Keyword_public {
+    pub keyword: String,
+    pub created: Option<i64>
+}
+
+impl From<Keyword> for Keyword_public {
+    fn from(data: Keyword) -> Self {
+        Keyword_public {
+            keyword: data.keyword,
+            created: data.created
         }
     }
 }

@@ -3,6 +3,7 @@ import general from "./general.js";
 import user from "./user.js";
 import folder from "./folder.js";
 import item from './item.js';
+import keyword from "./keyword.js";
 
 let deviceIDG = null;
 let privateKeyG = null;
@@ -36,7 +37,8 @@ function Journal(credsObject) {
         general: general,
         user: user,
         folder: folder,
-        item: item
+        item: item,
+        keyword: keyword
     };
 }
 

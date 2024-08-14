@@ -130,10 +130,15 @@ export default function Import() {
             folder: params.get("folder")
         }
 
-        const item_response = await Journal(creds()).item.update(data);
-        let new_data = await things(item_response.item_id);
+        try {
+            const item_response = await Journal(creds()).item.update(data);
+            let new_data = await things(item_response.item_id);
 
-        await Journal(creds()).item.content.update("create", new_data);
+            await Journal(creds()).item.content.update("create", new_data);
+        } catch (error) {
+            alert(error.message);
+            throw error;
+        }
     }
 
     return (

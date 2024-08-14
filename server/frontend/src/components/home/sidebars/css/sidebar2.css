@@ -73,3 +73,15 @@
     font-size: 12px;
     font-weight: bold;
 }
+
+.sidebar2_slim {
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    box-shadow: none;
+    border-radius: 0px;
+}
+
+.sidebar2_slim img {
+    width: 20px;
+}

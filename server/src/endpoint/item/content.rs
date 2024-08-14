@@ -86,7 +86,6 @@ pub async fn item_content_update(mut db: Connection<Db>, params: &Query_string, 
         return status::Custom(Status::BadRequest, error_message("body.actions must be specified."));
     }
     let actions = body.actions.clone().expect("Missing body.actions");
-
     if (actions.len() > 10000) {
         return status::Custom(Status::BadRequest, error_message("body.actions cannot have more than 100 actions."));
     }
@@ -130,6 +129,7 @@ pub async fn item_content_update(mut db: Connection<Db>, params: &Query_string, 
             return status::Custom(Status::BadRequest, error_message("action.content is over 100,000 characters. This server has a limit of 100,000 characters."));
         }
 
+        // TODO: To prevent collisions, custom IDs should have a nonce. Otherwise an asset with the same ID but different data could get mixed up mid-request, for example, if a deletion occured, it may not be for the occupying item.
         if (action_type == "create") {
             if (action.row_id.is_none() == false) {
                 if (action.row_id.clone().unwrap().starts_with(&format!("{}_", item_id.clone())) == false) {
