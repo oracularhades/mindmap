@@ -135,11 +135,18 @@ export default function Import() {
 
             await Journal(creds()).item.content.update("create", new_data);
 
-            window.location.reload();
+            alert("Imported successfully");
+            reset();
         } catch (error) {
             alert(error.message);
             throw error;
         }
+    }
+
+    async function reset() {
+        set_title(null);
+        set_data([]);
+        file.current = null;
     }
 
     return (
