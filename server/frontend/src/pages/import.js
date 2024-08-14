@@ -8,6 +8,7 @@ import Waterfall from '@/components/internal_components/mindmap/waterfall/waterf
 import Input_with_header from '@/components/input/input_with_header';
 import { Journal } from '@oracularhades/journal';
 import { useRouter } from 'next/router';
+import Button1 from '@/components/internal_components/button/button';
 
 export default function Import() {
     const router = useRouter();
@@ -158,7 +159,7 @@ export default function Import() {
 
                     <p>Preview</p>
                     <Waterfall data={build_nested_structure(data)}/>
-                    <button onClick={() => { import_document(); }}>Import</button>
+                    <Button1 onClick={import_document}>Import</Button1>
                 </div>}
             </div>
         </Home1>

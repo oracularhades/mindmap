@@ -6,6 +6,7 @@ import Input_row_header from '@/components/input/input_row_header.js';
 import { useState } from 'react';
 import { Journal } from '@oracularhades/journal';
 import { creds } from '@/global';
+import Button1 from '../../button/button';
 
 function generate_random_mindmap_name() {
     const example_mindmaps_arrays = example_mindmaps_array();
@@ -64,7 +65,7 @@ export default function Dialog_create_folder(props) {
                 </select>
             </Input_row_header>
 
-            <button onClick={() => { create_folder(); }}>Submit</button>
+            <Button1 onClick={() => {create_folder}}>Submit</Button1>
         </Dialog_Frame>
     )
 }
