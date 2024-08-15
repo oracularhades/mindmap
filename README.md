@@ -14,8 +14,8 @@ You can then add "Keywords" to the database, so when you open any of your Mindma
 
 (The keyword UI with my test input)
 
-<img width="600" alt="Screenshot 2024-08-15 at 1 33 54 PM" src="https://github.com/user-attachments/assets/b04029e7-bd1b-4515-af6f-c2a02cf05d12">
-<img width="600" alt="Screenshot 2024-08-15 at 1 34 00 PM" src="https://github.com/user-attachments/assets/91ab06f0-56db-47c2-ab73-2d4b2344acd4">
+<img width="600" alt="Screenshot 2024-08-15 at 6 56 56 PM" src="https://github.com/user-attachments/assets/0f76c8a5-8aab-44a0-b6ba-e733e984357a">
+<img width="600" alt="Screenshot 2024-08-15 at 6 57 05 PM" src="https://github.com/user-attachments/assets/854b8501-077d-4dc9-9852-7627734b97ba">
 
 
 # A note about the code
