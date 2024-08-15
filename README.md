@@ -1,1 +1,1 @@
-
+A significant portion of this code was written whilst I was sleep deprived in a short period of time. It's currently is not commented (shocker), the code has TODO comments and code for features that were dropped. I will go through and clean it all up with any spare time I have over the next few days.
