@@ -148,7 +148,7 @@ pub async fn keyword_update(mut db: Connection<Db>, params: &Query_string, mut b
                 return status::Custom(Status::BadRequest, error_message("action_data.keywords.actions.word is null or whitespace."));
             }
 
-            let word = keyword_action.word.clone().expect("missing action.word");
+            let word = keyword_action.word.clone().expect("missing action.word").toLowerCase(); // It's important the keyword is lowercase!
             if (word.len() > 1000) {
                 return status::Custom(Status::BadRequest, error_message("action_data.keywords.actions.word cannot be longer than 1000 characters."));
             }

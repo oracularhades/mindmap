@@ -85,7 +85,7 @@ export default function Waterfall(props) {
                         {/* {!item.parent && <img style={{ width: 6, height: 6 }} src="/icons/circle-solid.svg"/>} */}
                         {/* {item.parent && <img src="/icons/arrow-right-alt.svg"/>} */}
                         <img src="/icons/arrow-right-alt.svg"/>
-                        {props.editing != true && <MessageInject className='item_text'>
+                        {props.editing != true && <MessageInject className='item_text' keywords={props.keywords}>
                             {item.content}
                         </MessageInject>}
                         {props.editing == true && <textarea className='editing_textarea' value={item.content}/>}

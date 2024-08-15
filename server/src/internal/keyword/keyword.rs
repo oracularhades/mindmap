@@ -50,7 +50,9 @@ pub async fn keyword_list(mut db: Connection<Db>, user_id: String, ids: Option<V
 
         if (text.clone().is_none() == false) {
             // Skip irrelevant keyword(s) (a keyword that isn't used within the provided text).
-            if (text.clone().unwrap().to_lowercase().contains(&format!(" {} ", &keyword.clone().unwrap().to_lowercase())) == false) {
+            let text_unwrap = text.clone().unwrap().to_lowercase();
+            let keyword_unwrap = keyword.clone().clone().unwrap().to_lowercase();
+            if (text_unwrap.clone().contains(&format!(" {} ", &keyword_unwrap.clone())) == false && text_unwrap.clone().trim() != keyword_unwrap.clone()) {
                 continue;
             }
         }

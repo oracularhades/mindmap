@@ -23,6 +23,15 @@ export default function MessageInject(props) {
         return <div className="message_inject_line_div">{line.split(":").map((data) => {
             run_count++;
 
+            let keyword = null;
+            if (props.keywords) {
+                props.keywords.forEach((keyword_item) => {
+                    if (keyword_item.keywords.includes(data.toLowerCase())) {
+                        keyword = keyword_item;
+                    }
+                });
+            }
+
             if (data.startsWith("@") && data.replaceAll("@").length > 0) {
                 let output = data;
                 let end = "";
@@ -36,11 +45,13 @@ export default function MessageInject(props) {
 
                 return <p id="donot"><Link id="donot" href={`/@${output}`} className="hoverUnderline greyA">@{output}</Link>{end}&nbsp;</p>
             // } else if (data.startsWith("~") && data.endsWith("~") && data.replaceAll("~", "").length > 0) {
-            } else if (data == "plant") {
+            } else if (keyword != null) {
                 return <div className="message_inject_mindmap_keyword">
-                    <img id="donot" className='emoteImgImg disable-select' src={`https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Water-3D-balls-A.png/200px-Water-3D-balls-A.png`}/>
+                    <div className="message_inject_mindmap_keyword_img_holder">
+                        <img id="donot" className='emoteImgImg disable-select' src={keyword.image || keyword.external_image}/>
+                    </div>
                     {/* <a href="https://example.com">{data.slice(1, data.length-1)}</a> */}
-                    <a target="_blank" rel="noreferrer" href="https://example.com">{data}</a>
+                    <a target="_blank" rel="noreferrer" href={keyword.external_link}>{data}</a>
                 </div>
             } else if (props.showLinks == true && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(data) == true && data.startsWith("https")) {
                 if (props.hideThoughtLinks == true && data.startsWith("https://example.com/thought/") && /[^a-zA-Z0-9/:.]/g.test(data.content) == false && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(data) == true) {

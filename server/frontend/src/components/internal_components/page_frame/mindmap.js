@@ -14,6 +14,7 @@ export default function Page_frame_mindmap() {
     const should_run = useRef(true);
     const [item, set_item] = useState(null);
     const [rows, set_rows] = useState([]);
+    const [keywords, set_keywords] = useState([]);
     const [editing, set_editing] = useState(false);
     const [loading, set_loading] = useState(true);
 
@@ -24,6 +25,7 @@ export default function Page_frame_mindmap() {
             const response = await Journal(creds()).item.content.list({ item: router.query.id });
             set_item(response.item);
             set_rows(response.data);
+            set_keywords(response.keywords);
         } catch (error) {
             alert(error.message);
             throw error;
@@ -140,7 +142,7 @@ export default function Page_frame_mindmap() {
                     <p>Editing</p>
                 </div>
 
-                <Waterfall data={build_nested_structure(rows)} item={item} refresh={get_item_content} editing={editing}/>
+                <Waterfall data={build_nested_structure(rows)} item={item} keywords={keywords} refresh={get_item_content} editing={editing}/>
             </div>}
             {loading == true && <Loading/>}
         </Home1>
