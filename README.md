@@ -28,3 +28,5 @@ A significant portion of this code was written whilst I was sleep deprived in a 
 - You can't edit Mindmaps, the code exists in the backend, but it's not connected to the frontend. This also means you can't really delete anything.
 - Add some missing dialogs.
 - Add .docx support.
+- Creating a version that doesn't require Docker (backend can easily run outside of Docker, but serving frontend from the backend outside of Docker is the issue).
+- Add a config flag to enable frontend serving, and a dedicated flag for server code. It's inefficient to have all backends also serving frontend.
