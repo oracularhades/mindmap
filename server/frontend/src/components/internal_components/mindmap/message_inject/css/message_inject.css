@@ -42,15 +42,15 @@
 
 .message_inject_mindmap_keyword_img_holder {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    max-width: 30px;
-    max-height: 30px;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
     overflow: hidden;
 }
 
 .message_inject_mindmap_keyword_img_holder img {
     width: 100%;
     height: 100%;
-    background-size: contain;
+    object-fit: cover;
 }

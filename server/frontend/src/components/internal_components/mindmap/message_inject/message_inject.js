@@ -20,11 +20,12 @@ export default function MessageInject(props) {
     let run_count = -1;
 
     const message = text.split("\n").map((line) => {
-        return <div className="message_inject_line_div">{line.split(":").map((data) => {
+        return <div className="message_inject_line_div">{line.split(" ").map((data) => {
             run_count++;
 
             let keyword = null;
             if (props.keywords) {
+                console.log("DATA", data);
                 props.keywords.forEach((keyword_item) => {
                     if (keyword_item.keywords.includes(data.toLowerCase())) {
                         keyword = keyword_item;
