@@ -2,12 +2,6 @@
 FROM --platform=linux/amd64 rust:latest as build-stage
 WORKDIR /mindmap-server
 
-ENV DATABASE_URL="mysql://example-user:my_cool_secret@127.0.0.1:3306/prod"
-ENV smtp_host="smtp.sendgrid.net"
-ENV smtp_port="587"
-ENV smtp_username="apikey"
-ENV smtp_from_header="noreply@paperplane.motionfans.com"
-
 LABEL org.opencontainers.image.source=https://github.com/oracularhades/guard
 
 COPY Cargo.lock /mindmap-server/Cargo.lock
