@@ -1,3 +1,6 @@
+use indexmap::IndexMap;
+
+use keyword_metadata::item;
 use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket::serde::json::{Value, json};
 use rocket::response::{status, status::Custom};
@@ -14,85 +17,66 @@ use crate::structs::*;
 use crate::tables::*;
 use crate::SQL_TABLES;
 
-sql_function! {
-    fn group_concat(expr: Text) -> Text;
-}
-
-use crate::internal::keyword::metadata::keyword_metadata_get;
-
-// TODO: Keyword_sql BOTH HERE AND IN KEYWORD_GET NEEDS TO BE CHANGED BECAUSE IT INCLUDES RAW DB INFORMATION.
-pub async fn keyword_list(mut db: Connection<Db>, user_id: String, ids: Option<Vec<String>>) -> Result<(Vec<Rendered_keyword>, Option<Value>, Connection<Db>), String> {
-    let sql: Config_sql = (&*SQL_TABLES).clone();
-
+pub async fn keyword_list(mut db: Connection<Db>, user_id: String, ids: Option<Vec<String>>, text: Option<String>) -> Result<(Vec<Rendered_keyword>, Option<Value>, Connection<Db>), String> {
     let mut query = crate::tables::keywords::table
     .inner_join(keyword_metadata::table.on(crate::tables::keyword_metadata::id.eq(keywords::keyword_metadata)))
+    .filter(keyword_metadata::owner.eq(user_id.clone()))
     .into_boxed();
-
-    println!("ids: {:?}", ids.clone());
 
     if ids.is_none() == false && ids.clone().unwrap().len() > 0 {
         query = query.filter(keyword_metadata::id.eq_any(ids.clone().unwrap()));
     }
 
-    let results: Vec<(Option<Keyword_metadata>, Option<String>)> = query
-        .select((
-            keyword_metadata::all_columns.nullable(),
-            group_concat(crate::tables::keywords::keyword).nullable(),
-        ))
-        .order(keyword_metadata::created.desc())
-        .load::<(
-            Option<Keyword_metadata>,
-            Option<String>
-        )>(&mut db)
-        .await
-        .expect("Something went wrong querying the DB.");
+    // Diesel doesn't support SQL array functions (like ARRAY_AGG), so we'll have to fetch a bunch of results and filter them out ourselves. It's incredibly annoying, but if we used a raw SQl query, filtering would become riskier, and manually adding an SQL_function to Diesel is a bad idea.
 
-    let mut item_results: Vec<Rendered_keyword> = Vec::new();
-    for (metadata_wrapped, keywords) in results {
-        if metadata_wrapped.is_none() == true || keywords.is_none() == true {
+    let results: Vec<(Option<Keyword_metadata>, Option<String>)> = query
+    .select((
+        keyword_metadata::all_columns.nullable(),
+        crate::tables::keywords::keyword.nullable(),
+    ))
+    .order(keyword_metadata::created.desc())
+    .load::<(
+        Option<Keyword_metadata>,
+        Option<String>
+    )>(&mut db)
+    .await
+    .expect("Something went wrong querying the DB.");
+
+    let mut metadata_store: IndexMap<String, Rendered_keyword> = IndexMap::new();
+    for (metadata_wrapped, keyword) in results {
+        if metadata_wrapped.is_none() == true || keyword.is_none() == true {
             continue;
+        }
+
+        if (text.clone().is_none() == false) {
+            // Skip irrelevant keyword(s) (a keyword that isn't used within the provided text).
+            if (text.clone().unwrap().to_lowercase().contains(&keyword.clone().unwrap().to_lowercase()) == false) {
+                continue;
+            }
         }
 
         let metadata = metadata_wrapped.unwrap();
 
-        let keywords_vec: Vec<String> = keywords.unwrap().split(',')
-            .map(|s| s.to_string())
-            .collect();
-    
-        item_results.push(Rendered_keyword {
-            id: metadata.id,
-            owner: metadata.owner,
-            description: metadata.description,
-            external_link: metadata.external_link,
-            image: metadata.image,
-            external_image: metadata.external_image,
-            item: metadata.item,
-            created: metadata.created,
-            keywords: Some(keywords_vec),
-        });
+        if let Some(new_metadata) = metadata_store.get_mut(&metadata.id.clone()) {
+            let mut new_keywords = new_metadata.keywords.clone().unwrap();
+            new_keywords.push(keyword.unwrap());
+            new_metadata.keywords = Some(new_keywords);
+        } else {
+            metadata_store.insert(metadata.id.clone(), Rendered_keyword {
+                id: metadata.id.clone(),
+                owner: metadata.owner,
+                description: metadata.description,
+                external_link: metadata.external_link,
+                image: metadata.image,
+                external_image: metadata.external_image,
+                item: metadata.item,
+                created: metadata.created,
+                keywords: Some(vec![keyword.unwrap()]),
+            });
+        }
     }
 
-    // let item_results: Vec<Rendered_keyword> = results.into_iter().map(|(metadata, keywords)| {
-    //     if (keywords.is_none() == true) {
-    //         continue;
-    //     }
-
-    //     let keywords_vec: Vec<String> = keywords.split(',')
-    //     .map(|s| s.to_string())
-    //     .collect();
-        
-    //     Rendered_keyword {
-    //         id: metadata.id,
-    //         owner: metadata.owner,
-    //         description: metadata.description,
-    //         external_link: metadata.external_link,
-    //         image: metadata.image,
-    //         external_image: metadata.external_image,
-    //         item: metadata.item,
-    //         created: metadata.created,
-    //         keywords: Some(keywords_vec),
-    //     }
-    // }).collect();
+    let mut item_results: Vec<Rendered_keyword> = metadata_store.values().cloned().collect();
 
     return Ok((
         item_results,
@@ -101,6 +85,7 @@ pub async fn keyword_list(mut db: Connection<Db>, user_id: String, ids: Option<V
     ));
 }
 
+// TODO: KEYWORD_GET NEEDS TO BE CHANGED BECAUSE IT INCLUDES RAW DB INFORMATION.
 pub async fn keyword_get(mut db: Connection<Db>, id: String, write_authorized: Option<String>) -> Result<(Option<Keyword_sql>, Option<Value>, Connection<Db>), String> {
     let sql: Config_sql = (&*SQL_TABLES).clone();
 
@@ -137,6 +122,17 @@ ON keyword.owner = keyword_metadata.owner", keyword_table.clone(), keyword_metad
 
     return Ok((
         Some(result),
+        None,
+        db
+    ));
+}
+
+pub async fn keywords_from_text(mut db: Connection<Db>, text: String, user_id: String) -> Result<(Vec<Rendered_keyword>, Option<Value>, Connection<Db>), String> {
+    let (item_results, error_to_respond_with, keyword_db) = keyword_list(db, user_id, None, Some(text)).await.expect("Failed to get keyword_list");
+    db = keyword_db;
+
+    return Ok((
+        item_results,
         None,
         db
     ));

@@ -33,7 +33,7 @@ pub async fn keyword_list(mut db: Connection<Db>, params: &Query_string, ids: Op
         .collect();
     }
 
-    let (rendered_keywords, error_to_respond_with, keyword_db) = crate::internal::keyword::keyword::keyword_list(db, request_authentication_output.user_id.clone(), Some(ids_split)).await.expect("Failed to get keyword_list");
+    let (rendered_keywords, error_to_respond_with, keyword_db) = crate::internal::keyword::keyword::keyword_list(db, request_authentication_output.user_id.clone(), Some(ids_split), None).await.expect("Failed to get keyword_list");
     db = keyword_db;
     
     if (error_to_respond_with.is_none() == false) {

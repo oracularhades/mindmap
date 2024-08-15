@@ -14,6 +14,7 @@ use rocket_db_pools::diesel::{MysqlPool, prelude::*};
 use crate::global::{generate_random_id, get_epoch, is_null_or_whitespace, request_authentication};
 use crate::internal::folder::{folder_get, folder_list};
 use crate::internal::item::index::item_get;
+use crate::internal::keyword::keyword::keywords_from_text;
 use crate::responses::*;
 use crate::structs::*;
 use crate::tables::*;
@@ -34,6 +35,7 @@ pub async fn item_content_list(mut db: Connection<Db>, item: Option<String>, par
     };
     db = request_authentication_output.returned_connection;
 
+    // Get the item. This will check this person has permission to access the item (because we passed a user_id).
     let (item_data, error_to_respond_with, folder_db) = crate::internal::item::index::item_get(db, item_id.clone(), Some(request_authentication_output.user_id.clone())).await.expect("Error looking up folder.");
     db = folder_db;
 
@@ -46,18 +48,44 @@ pub async fn item_content_list(mut db: Connection<Db>, item: Option<String>, par
     let item_data_public: Mindmap_item_public = item_data.unwrap().into();
 
     // TODO: Return item_content_result as Option<Vec<Mindmap_item_content>> - for example, I forgot error_to_respond_with here at one point, and it would have just returned and empty result with no reliability. This should be added to everything else as well.
-    let (item_content_result, error_to_respond_with, content_list_db) = crate::internal::item::content::content_list(db, item_id.clone(), request_authentication_output.user_id).await.expect("Failed to get item content list.");
+    let (item_content_result, error_to_respond_with, content_list_db) = crate::internal::item::content::content_list(db, item_id.clone(), request_authentication_output.user_id.clone()).await.expect("Failed to get item content list.");
     db = content_list_db;
 
+    if (error_to_respond_with.is_none() == false) {
+        return status::Custom(Status::BadRequest, error_to_respond_with.unwrap());
+    }
+
+    // Return public data, not internal system or admin data.
     let mut item_content_result_public: Vec<Mindmap_item_content_public> = item_content_result
     .into_iter()
     .map(Mindmap_item_content_public::from)
     .collect();
 
+    // We need to get keywords for this document, instead of trying to write some fancy but messy SQL query to do this (including dealing with chunks in the SQL query), we can instead take any returned text, put it into an array, join it with spaces, and get the same result.
+    let mut texts: Vec<String> = Vec::new();
+    for item in item_content_result_public.clone() {
+        texts.push(item.content.unwrap());
+    }
+
+    // Get keywords for this item, using the joined text. This will use SQL's LIKE to find relevant keywords used here.
+    let (keywords_for_item, error_to_respond_with, keywords_from_text_db) = keywords_from_text(db, texts.join(" "), request_authentication_output.user_id.clone()).await.expect("Failed to get keywords from text");
+    db = keywords_from_text_db;
+
+    if (error_to_respond_with.is_none() == false) {
+        return status::Custom(Status::BadRequest, error_to_respond_with.unwrap());
+    }
+
+    // Return public data, not internal system or admin data.
+    let mut keywords_for_item_public: Vec<Rendered_keyword_public> = keywords_for_item
+    .into_iter()
+    .map(Rendered_keyword_public::from)
+    .collect();
+
     status::Custom(Status::Ok, json!({
         "ok": true,
+        "item": item_data_public,
         "data": item_content_result_public,
-        "item": item_data_public
+        "keywords": keywords_for_item_public
     }))
 }
 
