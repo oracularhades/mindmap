@@ -1,14 +1,16 @@
 # Use the official Rust image as the base
 FROM --platform=linux/amd64 rust:latest as build-stage
-WORKDIR /server
+WORKDIR /mindmap-server
 
-COPY Cargo.lock /server/Cargo.lock
-COPY Cargo.toml /server/Cargo.toml
-COPY README.md /server/README.md
-COPY src /server/src
-COPY frontend /server/frontend
-COPY nginx /server/nginx
-COPY start-webservers.sh /server
+LABEL org.opencontainers.image.source=https://github.com/oracularhades/guard
+
+COPY Cargo.lock /mindmap-server/Cargo.lock
+COPY Cargo.toml /mindmap-server/Cargo.toml
+COPY README.md /mindmap-server/README.md
+COPY src /mindmap-server/src
+COPY frontend /mindmap-server/frontend
+COPY nginx /mindmap-server/nginx
+COPY start-webservers.sh /mindmap-server
 
 RUN apt update -y
 RUN apt upgrade -y
@@ -18,14 +20,14 @@ RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin tree
 RUN useradd -m -s /bin/bash linuxbrew && \
     mkdir -p /home/linuxbrew/.linuxbrew && \
     chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
-    chown -R linuxbrew:linuxbrew /server/* && \
-    chown -R linuxbrew:linuxbrew /server
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
 
-RUN mkdir /server-built
-RUN chown -R linuxbrew /server-built
+RUN mkdir /mindmap-server-built
+RUN chown -R linuxbrew /mindmap-server-built
 
-RUN chown -R linuxbrew /server
-RUN chown -R linuxbrew /server/frontend
+RUN chown -R linuxbrew /mindmap-server
+RUN chown -R linuxbrew /mindmap-server/frontend
 
 # Switch to the non-root user
 USER linuxbrew
@@ -39,49 +41,49 @@ RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.co
 RUN brew install node
 
 # Build front-end
-WORKDIR /server/frontend
+WORKDIR /mindmap-server/frontend
 RUN npm install
 RUN npm run build
-WORKDIR /server
+WORKDIR /mindmap-server
 
 ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 
-RUN curl -Lo /server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
-RUN unzip -d /server /server/guard.zip
-# RUN chmod +x /server/guard/server
+RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
+RUN unzip -d /mindmap-server /mindmap-server/guard.zip
+# RUN chmod +x /mindmap-server/guard/mindmap-server
 
 # Build
 RUN cargo update
 RUN cargo build --release
 
 # Remove frontend nextjs source files, they just un-necessarily take up lots of space.
-RUN mkdir /server-built/frontend
-RUN mv /server/frontend/_static /server-built/frontend/_static
-RUN mv /server/target /server-built/target
-RUN mv /server/nginx /server-built/nginx
-RUN mv /server/start-webservers.sh /server-built/start-webservers.sh
+RUN mkdir /mindmap-server-built/frontend
+RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
+RUN mv /mindmap-server/target /mindmap-server-built/target
+RUN mv /mindmap-server/nginx /mindmap-server-built/nginx
+RUN mv /mindmap-server/start-webservers.sh /mindmap-server-built/start-webservers.sh
 
 # Copy necessary web-server configuration files for Rover and Guard.
-COPY Rocket.toml /server/Rocket.toml
-RUN mv /server/Rocket.toml /server-built/Rocket.toml
+COPY Rocket.toml /mindmap-server/Rocket.toml
+RUN mv /mindmap-server/Rocket.toml /mindmap-server-built/Rocket.toml
 
-# This is about to get moved with the /server/guard folder to /server-built/guard, so we have no need to move it here.
-COPY ./guard/Rocket.toml /server/guard/Rocket.toml
+# This is about to get moved with the /mindmap-server/guard folder to /mindmap-server-built/guard, so we have no need to move it here.
+COPY ./guard/Rocket.toml /mindmap-server/guard/Rocket.toml
 
-COPY guard/guard-config.toml /server/guard/guard-config.toml
-RUN mv /server/guard /server-built/guard
+COPY guard/guard-config.toml /mindmap-server/guard/guard-config.toml
+RUN mv /mindmap-server/guard /mindmap-server-built/guard
 
 WORKDIR /
 USER root
-RUN rm -rf /server
-RUN mv /server-built /server
-WORKDIR /server
+RUN rm -rf /mindmap-server
+RUN mv /mindmap-server-built /mindmap-server
+WORKDIR /mindmap-server
 USER linuxbrew
 
 FROM --platform=linux/amd64 rust:latest as production-stage
-WORKDIR /server
+WORKDIR /mindmap-server
 
-COPY --from=build-stage /server /server
+COPY --from=build-stage /mindmap-server /mindmap-server
 
 # Install libcap2-bin for setting capabilities
 RUN apt update
@@ -110,12 +112,12 @@ RUN apt-get install nginx -y
 RUN chown -R kube /var/lib/nginx
 RUN chown -R kube /var/log/nginx
 
-RUN chmod +x /server/guard/guard-server
-RUN chmod +x /server/start-webservers.sh
+RUN chmod +x /mindmap-server/guard/guard-server
+RUN chmod +x /mindmap-server/start-webservers.sh
 
 # Set the capability to bind to port 80 for the cargo binary
 RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
 
 # Run the application as kube user
 USER kube
-CMD export guard_config=$(cat /server/guard/guard-config.toml) & /server/start-webservers.sh
+CMD export guard_config=$(cat /mindmap-server/guard/guard-config.toml) & /mindmap-server/start-webservers.sh
