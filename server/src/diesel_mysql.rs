@@ -10,9 +10,6 @@ use rocket::{fairing::{Fairing, Info, Kind}, State};
 use rocket::fairing::AdHoc;
 use rocket::fs::FileServer;
 
-use rocket_db_pools::{Database, Connection};
-use rocket_db_pools::diesel::{MysqlPool, prelude::*};
-
 use diesel::prelude::*;
 use diesel::sql_types::*;
 
@@ -61,7 +58,7 @@ impl<'r> FromRequest<'r> for &'r Query_string {
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel SQLite Stage", |rocket| async {
-        rocket.attach(Db::init())
+        rocket
         .mount("/", FileServer::from(format!("{}/frontend/_static", env::current_dir().expect("Could not get current process directory.").display())))
         .mount("/api", routes![options_handler])
         // .mount("/api/user", routes![crate::endpoint::user::user_list, crate::endpoint::user::user_update])
