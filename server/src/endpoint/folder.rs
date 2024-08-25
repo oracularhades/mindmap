@@ -112,14 +112,14 @@ pub async fn folder_update(params: &Query_string, mut body: Json<Folder_update_b
         .load::<Mindmap_folder>(&mut db)
         .expect("Something went wrong querying the DB.");
     } else if (action == "create") {
-        let result: Vec<Mindmap_folder> = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", sql.folder.unwrap()))
+        let result = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", sql.folder.unwrap()))
         .bind::<Text, _>(folder_id.clone())
         .bind::<Text, _>(title.clone())
         .bind::<Nullable<Text>, _>(inner_folder.clone())
         .bind::<Text, _>(visibility.clone())
         .bind::<Text, _>(request_authentication_output.user_id.clone())
         .bind::<BigInt, _>(get_epoch())
-        .load::<Mindmap_folder>(&mut db)
+        .execute(&mut db)
         .expect("Something went wrong querying the DB.");
     }
 

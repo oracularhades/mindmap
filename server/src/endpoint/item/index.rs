@@ -183,14 +183,14 @@ pub async fn item_update(params: &Query_string, mut body: Json<Item_update_body>
         .expect("Something went wrong querying the DB.");
     } else if (action == "create") {
         // format!() is not for values. It uses heavily vetted and sanitized values that are directly from the admin's configuration on local environment variables.
-        let result: Vec<Mindmap_item> = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", item_table))
+        let result = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", item_table))
         .bind::<Text, _>(item_id.clone())
         .bind::<Text, _>(title.clone())
         .bind::<Nullable<Text>, _>(folder_id.clone())
         .bind::<Text, _>(visibility.clone())
         .bind::<Text, _>(request_authentication_output.user_id.clone())
         .bind::<BigInt, _>(get_epoch())
-        .load::<Mindmap_item>(&mut db)
+        .execute(&mut db)
         .expect("Something went wrong querying the DB.");
     }
 
@@ -278,14 +278,14 @@ pub async fn item_content_update(params: &Query_string, mut body: Json<Item_upda
         .expect("Something went wrong querying the DB.");
     } else if (action == "create") {
         // format!() is not for values. It uses heavily vetted and sanitized values that are directly from the admin's configuration on local environment variables.
-        let result: Vec<Mindmap_item> = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", item_table))
+        let result = sql_query(&format!("INSERT INTO {} (id, title, folder, visibility, owner, created) VALUES (?, ?, ?, ?, ?, ?)", item_table))
         .bind::<Text, _>(item_id.clone())
         .bind::<Text, _>(title.clone())
         .bind::<Nullable<Text>, _>(folder_id.clone())
         .bind::<Text, _>(visibility.clone())
         .bind::<Text, _>(request_authentication_output.user_id.clone())
         .bind::<BigInt, _>(get_epoch())
-        .load::<Mindmap_item>(&mut db)
+        .execute(&mut db)
         .expect("Something went wrong querying the DB.");
     }
 
