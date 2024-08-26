@@ -140,8 +140,6 @@ EXPOSE 80
 # Set the capability to bind to port 80 for the cargo binary
 RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
 
-USER linuxbrew
-
 # Run the application as kube user
 USER kube
 CMD export guard_config=$(cat /mindmap-server/guard/guard-config.toml) & /mindmap-server/start-webservers.sh
