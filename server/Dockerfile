@@ -23,12 +23,6 @@ RUN useradd -m -s /bin/bash linuxbrew && \
     chown -R linuxbrew:linuxbrew /mindmap-server/* && \
     chown -R linuxbrew:linuxbrew /mindmap-server
 
-RUN mkdir /mindmap-server-built
-RUN chown -R linuxbrew /mindmap-server-built
-
-RUN chown -R linuxbrew /mindmap-server
-RUN chown -R linuxbrew /mindmap-server/frontend
-
 # Switch to the non-root user
 USER linuxbrew
 # Set environment variables for Homebrew
@@ -48,6 +42,7 @@ WORKDIR /mindmap-server
 
 FROM --platform=linux/amd64 rust:latest as rust-build-stage
 COPY --from=build-stage /mindmap-server/ /mindmap-server/
+WORKDIR /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
@@ -77,8 +72,8 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 RUN apt update -y
 RUN apt upgrade -y
 
-RUN mkdir /mindmap-server-built
 # Move only relevant files.
+RUN mkdir /mindmap-server-built
 RUN mkdir /mindmap-server-built/frontend
 RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
 RUN mv /mindmap-server/target /mindmap-server-built/target
