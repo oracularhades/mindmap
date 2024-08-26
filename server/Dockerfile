@@ -90,19 +90,9 @@ COPY --from=build-stage /mindmap-server /mindmap-server
 RUN apt update -y
 RUN apt upgrade -y
 
-# Create a non-root user to run Homebrew
-RUN useradd -m -s /bin/bash linuxbrew && \
-    mkdir -p /home/linuxbrew/.linuxbrew && \
-    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
-    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
-    chown -R linuxbrew:linuxbrew /mindmap-server
-
 RUN mkdir /mindmap-server-built
 RUN chown -R linuxbrew /mindmap-server-built
-RUN chown -R linuxbrew /mindmap-server-built/*
-
-# We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
-USER linuxbrew
+RUN chown -R linuxbrew /mindmap-server-built/frontend
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built/frontend
@@ -110,6 +100,16 @@ RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
 RUN mv /mindmap-server/target /mindmap-server-built/target
 RUN mv /mindmap-server/nginx /mindmap-server-built/nginx
 RUN mv /mindmap-server/start-webservers.sh /mindmap-server-built/start-webservers.sh
+
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
+
+# We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
+USER linuxbrew
 
 # Copy necessary web-server configuration files for Rover and Guard.
 COPY Rocket.toml /mindmap-server/Rocket.toml
