@@ -33,6 +33,18 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
 
+RUN apt update -y
+RUN apt upgrade -y
+
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
+
+USER linuxbrew
+
 # Build front-end
 COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
 WORKDIR /mindmap-server/frontend
@@ -66,7 +78,7 @@ FROM --platform=linux/amd64 rust:latest as production-stage
 WORKDIR /mindmap-server
 
 # Copy only compiled Rust/NextJS. No need for source files, they just take up space.
-COPY --from=rust-build-stage /mindmap-server/target /mindmap-server/target
+COPY --from=rust-build-stage /mindmap-server /mindmap-server
 COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/frontend/_static
 
 RUN apt update -y
