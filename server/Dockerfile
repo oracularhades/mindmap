@@ -37,14 +37,28 @@ ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 # I don't think this is needed.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-RUN brew install node
+FROM --platform=linux/amd64 node:alphine as nextjs-build-stage
+
+RUN apt update -y
+RUN apt upgrade -y
+
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
 
 # Build front-end
+COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
 WORKDIR /mindmap-server/frontend
 RUN npm install
 RUN npm run build
 WORKDIR /mindmap-server
+
+FROM --platform=linux/amd64 rust:latest as rust-build-stage
+COPY --from=build-stage /mindmap-server/ /mindmap-server/
+COPY --from=nextjs-build-stage /mindmap-server/frontend /mindmap-server/frontend
 
 ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 
