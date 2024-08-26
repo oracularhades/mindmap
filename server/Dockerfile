@@ -39,9 +39,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 FROM --platform=linux/amd64 node:current-alpine as nextjs-build-stage
 
-RUN apt update -y
-RUN apt upgrade -y
-
 # Create a non-root user to run Homebrew
 RUN useradd -m -s /bin/bash linuxbrew && \
     mkdir -p /home/linuxbrew/.linuxbrew && \
