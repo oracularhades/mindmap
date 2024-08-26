@@ -49,6 +49,8 @@ RUN useradd -m -s /bin/bash linuxbrew && \
     chown -R linuxbrew:linuxbrew /mindmap-server/* && \
     chown -R linuxbrew:linuxbrew /mindmap-server
 
+USER linuxbrew
+
 # Build front-end
 COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
 WORKDIR /mindmap-server/frontend
@@ -59,6 +61,18 @@ WORKDIR /mindmap-server
 FROM --platform=linux/amd64 rust:latest as rust-build-stage
 COPY --from=build-stage /mindmap-server/ /mindmap-server/
 COPY --from=nextjs-build-stage /mindmap-server/frontend /mindmap-server/frontend
+
+RUN apt update -y
+RUN apt upgrade -y
+
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
+
+USER linuxbrew
 
 ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 
