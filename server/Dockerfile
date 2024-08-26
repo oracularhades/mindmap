@@ -101,7 +101,7 @@ RUN mkdir /mindmap-server-built
 RUN chown -R linuxbrew /mindmap-server-built
 
 # We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
-USER linuxbrew;
+USER linuxbrew
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built/frontend
