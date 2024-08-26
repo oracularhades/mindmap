@@ -91,9 +91,6 @@ RUN apt update -y
 RUN apt upgrade -y
 
 RUN mkdir /mindmap-server-built
-RUN chown -R linuxbrew /mindmap-server-built
-RUN chown -R linuxbrew /mindmap-server-built/frontend
-
 # Move only relevant files.
 RUN mkdir /mindmap-server-built/frontend
 RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
@@ -106,7 +103,9 @@ RUN useradd -m -s /bin/bash linuxbrew && \
     mkdir -p /home/linuxbrew/.linuxbrew && \
     chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
     chown -R linuxbrew:linuxbrew /mindmap-server/* && \
-    chown -R linuxbrew:linuxbrew /mindmap-server
+    chown -R linuxbrew:linuxbrew /mindmap-server && \
+    chown -R linuxbrew:linuxbrew /mindmap-server-built && \
+    chown -R linuxbrew:linuxbrew /mindmap-server-built/*
 
 # We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
 USER linuxbrew
