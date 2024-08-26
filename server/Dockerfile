@@ -82,13 +82,6 @@ ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 RUN cargo update
 RUN cargo build --release
 
-WORKDIR /
-USER root
-RUN rm -rf /mindmap-server
-RUN mv /mindmap-server-built /mindmap-server
-WORKDIR /mindmap-server
-USER linuxbrew
-
 FROM --platform=linux/amd64 rust:latest as production-stage
 WORKDIR /mindmap-server
 
@@ -96,6 +89,9 @@ COPY --from=build-stage /mindmap-server /mindmap-server
 
 RUN apt update -y
 RUN apt upgrade -y
+
+RUN mkdir /mindmap-server-built
+RUN chown -R linuxbrew /mindmap-server-built
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built/frontend
@@ -118,6 +114,14 @@ COPY ./guard/Rocket.toml /mindmap-server/guard/Rocket.toml
 
 COPY guard/guard-config.toml /mindmap-server/guard/guard-config.toml
 RUN mv /mindmap-server/guard /mindmap-server-built/guard
+
+# We've filtered out things we don't need, overwrite the original source.
+WORKDIR /
+USER root
+RUN rm -rf /mindmap-server
+RUN mv /mindmap-server-built /mindmap-server
+WORKDIR /mindmap-server
+USER linuxbrew
 
 # Add a non-root user kube with restricted shell
 RUN adduser kube --disabled-login
