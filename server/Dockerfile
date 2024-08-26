@@ -33,6 +33,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
 
+COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
+WORKDIR /mindmap-server/frontend
+
 RUN apt update -y
 RUN apt upgrade -y
 
@@ -46,8 +49,6 @@ RUN useradd -m -s /bin/bash linuxbrew && \
 USER linuxbrew
 
 # Build front-end
-COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
-WORKDIR /mindmap-server/frontend
 RUN npm install
 RUN npm run build
 WORKDIR /mindmap-server
