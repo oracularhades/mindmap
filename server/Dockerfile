@@ -14,7 +14,6 @@ COPY start-webservers.sh /mindmap-server
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin tree
 
 # Create a non-root user to run Homebrew
 RUN useradd -m -s /bin/bash linuxbrew && \
@@ -28,8 +27,7 @@ USER linuxbrew
 # Set environment variables for Homebrew
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 
-# I don't think this is needed.
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# Build frontend via Node docker.
 
 FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
 
@@ -84,6 +82,7 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
+RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin nginx tree
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built
