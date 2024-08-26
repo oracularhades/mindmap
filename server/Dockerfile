@@ -90,8 +90,18 @@ COPY --from=build-stage /mindmap-server /mindmap-server
 RUN apt update -y
 RUN apt upgrade -y
 
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
+
 RUN mkdir /mindmap-server-built
 RUN chown -R linuxbrew /mindmap-server-built
+
+# We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
+USER linuxbrew;
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built/frontend
