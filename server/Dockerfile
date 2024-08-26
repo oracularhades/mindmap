@@ -31,7 +31,7 @@ ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 # I don't think this is needed.
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-FROM --platform=linux/amd64 node:latest as nextjs-build-stage
+FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
 
 # Build front-end
 COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
