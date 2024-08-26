@@ -60,7 +60,9 @@ WORKDIR /mindmap-server
 
 FROM --platform=linux/amd64 rust:latest as rust-build-stage
 COPY --from=build-stage /mindmap-server/ /mindmap-server/
-COPY --from=nextjs-build-stage /mindmap-server/frontend /mindmap-server/frontend
+
+# Copy only compiled NextJS. No need for source files, they just take up space.
+COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/frontend/_static
 
 RUN apt update -y
 RUN apt upgrade -y
@@ -76,30 +78,9 @@ USER linuxbrew
 
 ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 
-RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
-RUN unzip -d /mindmap-server /mindmap-server/guard.zip
-# RUN chmod +x /mindmap-server/guard/mindmap-server
-
 # Build
 RUN cargo update
 RUN cargo build --release
-
-# Remove frontend nextjs source files, they just un-necessarily take up lots of space.
-RUN mkdir /mindmap-server-built/frontend
-RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
-RUN mv /mindmap-server/target /mindmap-server-built/target
-RUN mv /mindmap-server/nginx /mindmap-server-built/nginx
-RUN mv /mindmap-server/start-webservers.sh /mindmap-server-built/start-webservers.sh
-
-# Copy necessary web-server configuration files for Rover and Guard.
-COPY Rocket.toml /mindmap-server/Rocket.toml
-RUN mv /mindmap-server/Rocket.toml /mindmap-server-built/Rocket.toml
-
-# This is about to get moved with the /mindmap-server/guard folder to /mindmap-server-built/guard, so we have no need to move it here.
-COPY ./guard/Rocket.toml /mindmap-server/guard/Rocket.toml
-
-COPY guard/guard-config.toml /mindmap-server/guard/guard-config.toml
-RUN mv /mindmap-server/guard /mindmap-server-built/guard
 
 WORKDIR /
 USER root
@@ -113,30 +94,37 @@ WORKDIR /mindmap-server
 
 COPY --from=build-stage /mindmap-server /mindmap-server
 
-# Install libcap2-bin for setting capabilities
-RUN apt update
-RUN apt install -y libcap2-bin default-mysql-client dnsutils
+RUN apt update -y
+RUN apt upgrade -y
+
+# Move only relevant files.
+RUN mkdir /mindmap-server-built/frontend
+RUN mv /mindmap-server/frontend/_static /mindmap-server-built/frontend/_static
+RUN mv /mindmap-server/target /mindmap-server-built/target
+RUN mv /mindmap-server/nginx /mindmap-server-built/nginx
+RUN mv /mindmap-server/start-webservers.sh /mindmap-server-built/start-webservers.sh
+
+# Copy necessary web-server configuration files for Rover and Guard.
+COPY Rocket.toml /mindmap-server/Rocket.toml
+RUN mv /mindmap-server/Rocket.toml /mindmap-server-built/Rocket.toml
+
+# Guard
+RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
+RUN unzip -d /mindmap-server /mindmap-server/guard.zip
+# RUN chmod +x /mindmap-server/guard/mindmap-server
+
+# This is about to get moved with the /mindmap-server/guard folder to /mindmap-server-built/guard, so we have no need to move it here.
+COPY ./guard/Rocket.toml /mindmap-server/guard/Rocket.toml
+
+COPY guard/guard-config.toml /mindmap-server/guard/guard-config.toml
+RUN mv /mindmap-server/guard /mindmap-server-built/guard
 
 # Add a non-root user kube with restricted shell
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
 
-# RUN echo "defaults\nauth on\ntls on\ntls_starttls on\n\naccount smtp\nhost $smtp_host\nport $smtp_port\nfrom $smtp_from_header\nuser $smtp_username\npassword $smtp_password\n\n# Set default\naccount default : smtp" > /home/kube/.msmtprc
-# RUN chown -R kube /home/kube/.msmtprc
-# RUN chmod 600 /home/kube/.msmtprc
-
-# RUN echo $smtp_password > /home/kube/.msmtp-password.gpg
-# RUN chown -R kube /home/kube/.msmtp-password.gpg
-
-# Expose port 80 for the web server
 EXPOSE 80
 
-# Remove libcap2-bin and clean up apt cache
-RUN apt remove -y libcap2-bin
-RUN apt autoremove -y
-RUN apt clean
-
-RUN apt-get install nginx -y
 RUN chown -R kube /var/lib/nginx
 RUN chown -R kube /var/log/nginx
 
