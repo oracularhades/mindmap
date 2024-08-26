@@ -39,6 +39,15 @@ WORKDIR /mindmap-server/frontend
 RUN apt update -y
 RUN apt upgrade -y
 
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server
+
+USER linuxbrew
+
 # Build front-end
 RUN npm install
 RUN npm run build
@@ -117,11 +126,11 @@ USER root
 RUN rm -rf /mindmap-server
 RUN mv /mindmap-server-built /mindmap-server
 WORKDIR /mindmap-server
-USER linuxbrew
 
 # Add a non-root user kube with restricted shell
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
+USER linuxbrew
 
 EXPOSE 80
 
