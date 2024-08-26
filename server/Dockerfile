@@ -129,18 +129,18 @@ WORKDIR /mindmap-server
 # Add a non-root user kube with restricted shell
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
-USER linuxbrew
-
-EXPOSE 80
-
 RUN chown -R kube /var/lib/nginx
 RUN chown -R kube /var/log/nginx
 
 RUN chmod +x /mindmap-server/guard/guard-server
 RUN chmod +x /mindmap-server/start-webservers.sh
 
+EXPOSE 80
+
 # Set the capability to bind to port 80 for the cargo binary
 RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+
+USER linuxbrew
 
 # Run the application as kube user
 USER kube
