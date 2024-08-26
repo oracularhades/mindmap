@@ -61,9 +61,6 @@ WORKDIR /mindmap-server
 FROM --platform=linux/amd64 rust:latest as rust-build-stage
 COPY --from=build-stage /mindmap-server/ /mindmap-server/
 
-# Copy only compiled NextJS. No need for source files, they just take up space.
-COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/frontend/_static
-
 RUN apt update -y
 RUN apt upgrade -y
 
@@ -85,7 +82,9 @@ RUN cargo build --release
 FROM --platform=linux/amd64 rust:latest as production-stage
 WORKDIR /mindmap-server
 
-COPY --from=build-stage /mindmap-server /mindmap-server
+# Copy only compiled Rust/NextJS. No need for source files, they just take up space.
+COPY --from=rust-build-stage /mindmap-server/target /mindmap-server/target
+COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/frontend/_static
 
 RUN apt update -y
 RUN apt upgrade -y
