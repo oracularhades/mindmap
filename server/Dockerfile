@@ -136,6 +136,8 @@ RUN chown -R kube /var/log/nginx
 RUN chmod +x /mindmap-server/guard/guard-server
 RUN chmod +x /mindmap-server/start-webservers.sh
 
+RUN tree
+
 EXPOSE 80
 
 # Set the capability to bind to port 80 for the cargo binary
