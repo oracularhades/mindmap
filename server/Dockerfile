@@ -82,7 +82,7 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin nginx tree default-mysql-client
+RUN apt install -y curl libcap2-bin default-mysql-client dnsutils nginx tree
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built

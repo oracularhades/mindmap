@@ -1,14 +1,14 @@
 use rocket::response::{Debug, status::Created};
-use rocket::serde::{Serialize, Deserialize, json::Json};
 use rocket::response::status;
 use rocket::http::Status;
 use rocket::response::status::Custom;
-use rocket::serde::json::Value;
-use rocket::serde::json::json;
 use rocket::request::{self, Request, FromRequest};
 use rocket::{fairing::{Fairing, Info, Kind}, State};
 use rocket::fairing::AdHoc;
 use rocket::fs::FileServer;
+
+use serde::{Serialize, Deserialize};
+use serde_json::{Value, json};
 
 use diesel::prelude::*;
 use diesel::sql_types::*;

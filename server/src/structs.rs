@@ -1,6 +1,6 @@
-use diesel::prelude::*;
 use crate::tables::*;
-use rocket::serde::{Serialize, Deserialize};
+use diesel::prelude::*;
+use serde::{Serialize, Deserialize};
 use diesel::r2d2::{self, ConnectionManager};
 
 type DbPool = r2d2::Pool<ConnectionManager<MysqlConnection>>;

@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use rocket::serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize};
 use diesel::r2d2::{self, ConnectionManager};
 
 type DbPool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
