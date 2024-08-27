@@ -126,6 +126,11 @@ RUN rm -rf /mindmap-server
 RUN mv /mindmap-server-built /mindmap-server
 WORKDIR /mindmap-server
 
+# Testing something
+RUN apt remove -y libcap2-bin
+RUN apt autoremove -y
+RUN apt clean
+
 # Add a non-root user kube with restricted shell
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
