@@ -142,7 +142,7 @@ RUN chown -R kube /var/log/nginx
 RUN chmod +x /mindmap-server/guard/guard-server
 RUN chmod +x /mindmap-server/start-webservers.sh
 
-RUN tree /
+RUN tree /mindmap-server
 
 EXPOSE 80
 
