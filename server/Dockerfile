@@ -82,7 +82,7 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin tree
+RUN apt install -y curl git build-essential openssl libssl-dev libcap2-bin nginx tree
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built
@@ -130,7 +130,6 @@ WORKDIR /mindmap-server
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
 
-RUN apt-get install nginx -y
 RUN chown -R kube /var/lib/nginx
 RUN chown -R kube /var/log/nginx
 
