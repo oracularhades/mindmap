@@ -82,7 +82,7 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y curl libcap2-bin default-mysql-client dnsutils nginx tree
+RUN apt install -y curl libcap2-bin default-mysql-client dnsutils tree
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built
@@ -135,6 +135,7 @@ RUN apt clean
 RUN adduser kube --disabled-login
 RUN usermod -s /bin/rbash kube
 
+RUN apt-get install nginx -y
 RUN chown -R kube /var/lib/nginx
 RUN chown -R kube /var/log/nginx
 
