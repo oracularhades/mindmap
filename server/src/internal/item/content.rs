@@ -47,7 +47,8 @@ pub async fn content_list(item: String, user_id: String) -> Result<(Vec<Mindmap_
     ));
 }
 
-// pub async fn content_get(mut db: Connection<Db>, id: String, write_authorized: Option<String>) -> Result<(Option<Mindmap_item>, Option<Value>, Connection<Db>), String> {
+// pub async fn content_get(id: String, write_authorized: Option<String>) -> Result<(Option<Mindmap_item>, Option<Value>, Connection<Db>), String> {
+    // let mut db = crate::DB_POOL.get().expect("Failed to get a connection from the pool.");
 //     let sql: Config_sql = (&*SQL_TABLES).clone();
 
 //     let results: Vec<Mindmap_item> = sql_query(format!("SELECT id, title, owner, created, visibility FROM {} WHERE owner=? ORDER BY created DESC", sql.item.unwrap()))
@@ -77,7 +78,8 @@ pub async fn content_list(item: String, user_id: String) -> Result<(Vec<Mindmap_
 //     ));
 // }
 
-// pub async fn content_update(mut db: Connection<Db>, item: String, user_id: String) -> Result<(Vec<Mindmap_item_content>, Option<Value>, Connection<Db>), String> {
+// pub async fn content_update(item: String, user_id: String) -> Result<(Vec<Mindmap_item_content>, Option<Value>, Connection<Db>), String> {
+    // let mut db = crate::DB_POOL.get().expect("Failed to get a connection from the pool.");
 //     let sql: Config_sql = (&*SQL_TABLES).clone();
 
 //     let folder_table = sql.folder.unwrap();
