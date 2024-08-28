@@ -1,14 +1,4 @@
-use std::fmt::format;
-use std::process::{Command, Stdio};
 use std::error::Error;
-use std::collections::{HashMap};
-use std::time::{SystemTime, UNIX_EPOCH};
-use std::fs;
-use std::fs::{File};
-use std::io::Write;
-use url::Url;
-
-use rand::prelude::*;
 
 use crate::globals::environment_variables;
 use crate::structs::*;

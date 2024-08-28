@@ -23,7 +23,9 @@
 *.jks
 *.p12
 
+*.env
 *.exe
+
 /desktop-ui/target
 
 /server/admin-panel/_static

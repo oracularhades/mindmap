@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.source=https://github.com/oracularhades/guard
 
 COPY Cargo.lock /mindmap-server/Cargo.lock
 COPY Cargo.toml /mindmap-server/Cargo.toml
+COPY README.md /mindmap-server/README.md
 COPY src /mindmap-server/src
 COPY frontend /mindmap-server/frontend
 COPY nginx /mindmap-server/nginx
@@ -26,11 +27,10 @@ USER linuxbrew
 # Set environment variables for Homebrew
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 
-# Guard
-RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
-RUN unzip -d /mindmap-server /mindmap-server/guard.zip
+# Build frontend via Node docker.
 
 FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
+
 COPY --from=build-stage /mindmap-server/frontend /mindmap-server/frontend
 WORKDIR /mindmap-server/frontend
 
@@ -73,29 +73,16 @@ ENV PATH="/home/linuxbrew/.cargo/bin:${PATH}"
 RUN cargo update
 RUN cargo build --release
 
-FROM --platform=linux/amd64 ubuntu:latest as production-stage
+FROM --platform=linux/amd64 rust:latest as production-stage
 WORKDIR /mindmap-server
 
 # Copy only compiled Rust/NextJS. No need for source files, they just take up space.
-
-# We pulled and un-zipped Guard before, let's pull it into our final stage.
-COPY --from=build-stage /mindmap-server/guard /mindmap-server/guard
-
-# We need to get our NGINX config files.
-COPY --from=build-stage /mindmap-server/nginx /mindmap-server/nginx
-
-# We need the start-webservers.sh bash script.
-COPY --from=build-stage /mindmap-server/start-webservers.sh /mindmap-server/start-webservers.sh
-
-# Grab our compiled Rust.
-COPY --from=rust-build-stage /mindmap-server/target /mindmap-server/target
-
-# Grab our comppiled nextjs.
+COPY --from=rust-build-stage /mindmap-server /mindmap-server
 COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/frontend/_static
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y libcap2-bin default-mysql-client dnsutils tree default-mysql-server default-libmysqlclient-dev
+RUN apt install -y curl libcap2-bin default-mysql-client dnsutils tree default-mysql-server default-libmysqlclient-dev
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built
@@ -121,6 +108,9 @@ USER linuxbrew
 COPY Rocket.toml /mindmap-server/Rocket.toml
 RUN mv /mindmap-server/Rocket.toml /mindmap-server-built/Rocket.toml
 
+# Guard
+RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
+RUN unzip -d /mindmap-server /mindmap-server/guard.zip
 # RUN chmod +x /mindmap-server/guard/mindmap-server
 
 # This is about to get moved with the /mindmap-server/guard folder to /mindmap-server-built/guard, so we have no need to move it here.
