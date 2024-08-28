@@ -1,0 +1,66 @@
+FROM --platform=linux/amd64  debian:stable as production-stage
+WORKDIR /mindmap-server
+
+COPY guard /mindmap-server/guard
+COPY test-start.sh /mindmap-server
+
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt install -y curl libcap2-bin default-mysql-client dnsutils tree default-mysql-server default-libmysqlclient-dev git build-essential openssl libssl-dev libcap2-bin unzip
+
+# Move only relevant files.
+RUN mkdir /mindmap-server-built
+RUN mkdir /mindmap-server-built/frontend
+
+# Create a non-root user to run Homebrew
+RUN useradd -m -s /bin/bash linuxbrew && \
+    mkdir -p /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /home/linuxbrew/.linuxbrew && \
+    chown -R linuxbrew:linuxbrew /mindmap-server/* && \
+    chown -R linuxbrew:linuxbrew /mindmap-server && \
+    chown -R linuxbrew:linuxbrew /mindmap-server-built && \
+    chown -R linuxbrew:linuxbrew /mindmap-server-built/*
+
+# We'll switch to linuxbrew (dev build account) in-case we do something stupid as root while finalizing this container.
+USER linuxbrew
+
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+
+# Guard
+RUN curl -Lo /mindmap-server/guard.zip https://github.com/oracularhades/guard/releases/download/latest/guard.zip
+RUN unzip -d /mindmap-server /mindmap-server/guard.zip
+# RUN chmod +x /mindmap-server/guard/mindmap-server
+
+# This is about to get moved with the /mindmap-server/guard folder to /mindmap-server-built/guard, so we have no need to move it here.
+COPY ./guard/Rocket.toml /mindmap-server/guard/Rocket.toml
+
+COPY guard/guard-config.toml /mindmap-server/guard/guard-config.toml
+RUN mv /mindmap-server/guard /mindmap-server-built/guard
+
+# We've filtered out things we don't need, overwrite the original source.
+WORKDIR /
+USER root
+RUN mv /mindmap-server/test-start.sh /mindmap-server-built/test-start.sh
+RUN rm -rf /mindmap-server
+RUN mv /mindmap-server-built /mindmap-server
+WORKDIR /mindmap-server
+
+# Testing something
+RUN apt remove -y libcap2-bin
+RUN apt autoremove -y
+RUN apt clean
+
+# Add a non-root user kube with restricted shell
+RUN adduser kube --disabled-login
+RUN usermod -s /bin/rbash kube
+
+RUN chmod +x /mindmap-server/guard/guard-server
+RUN chmod +x /mindmap-server/test-start.sh
+
+RUN tree /mindmap-server
+
+EXPOSE 80
+
+# Run the application as kube user
+USER root
+CMD /mindmap-server/test-start.sh
