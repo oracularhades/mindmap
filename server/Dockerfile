@@ -6,7 +6,6 @@ LABEL org.opencontainers.image.source=https://github.com/oracularhades/guard
 
 COPY Cargo.lock /mindmap-server/Cargo.lock
 COPY Cargo.toml /mindmap-server/Cargo.toml
-COPY README.md /mindmap-server/README.md
 COPY src /mindmap-server/src
 COPY frontend /mindmap-server/frontend
 COPY nginx /mindmap-server/nginx
@@ -81,6 +80,12 @@ WORKDIR /mindmap-server
 
 # We pulled and un-zipped Guard before, let's pull it into our final stage.
 COPY --from=build-stage /mindmap-server/guard /mindmap-server/guard
+
+# We need to get our NGINX config files.
+COPY --from=build-stage /mindmap-server/nginx /mindmap-server/nginx
+
+# We need the start-webservers.sh bash script.
+COPY --from=build-stage /mindmap-server/start-webservers.sh /mindmap-server/start-webservers.sh
 
 # Grab our compiled Rust.
 COPY --from=rust-build-stage /mindmap-server/target /mindmap-server/target
