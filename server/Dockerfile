@@ -28,7 +28,7 @@ USER linuxbrew
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 
 # Guard
-RUN curl -Lo /mindmap-server/guard.zip https://gitlab.com/oracularhades/guard/-/jobs/artifacts/main/raw/guard.zip?job=build_rust_binary
+RUN curl -Lo /mindmap-server/guard.zip https://gitlab.com/oracularhades/guard/-/jobs/artifacts/nightly/raw/guard.zip?job=build_rust_binary
 RUN unzip -d /mindmap-server/guard /mindmap-server/guard.zip
 
 FROM --platform=linux/amd64 node:lts-bookworm-slim as nextjs-build-stage
