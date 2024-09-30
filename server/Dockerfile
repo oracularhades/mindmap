@@ -96,7 +96,7 @@ COPY --from=nextjs-build-stage /mindmap-server/frontend/_static /mindmap-server/
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install -y libcap2-bin default-mysql-client dnsutils tree default-mysql-server default-libmysqlclient-dev
+RUN apt install -y libcap2-bin default-mysql-client dnsutils tree default-mysql-server default-libmysqlclient-dev ca-certificates
 
 # Move only relevant files.
 RUN mkdir /mindmap-server-built
