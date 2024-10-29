@@ -1,5 +1,6 @@
 # Why
 A friend complained to me how awful it was to generate Mindmaps, even when they already had the Mindmap content from notes they had created. They tried using various website tools to no avail, as a last resort, I asked them to see if AI could do it (as expected it did not). It was suprising to me, considering how widespread Mindmaps are, that you could not easily create lots of Mindmaps based on data you already had, without manually creating the Mindmap.
+
 This tool is for that, it would have been weeks for this person to put their notes into a Mindmap. Doing Mindmaps in the future would quickly take up months or years of their life in total, which is not efficient. This tool exists to solve that.
 
 # About
