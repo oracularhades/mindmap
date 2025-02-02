@@ -1,5 +1,5 @@
-import { redirect_to_login_if_required } from '@/global';
 import { Roboto } from 'next/font/google';
+import { redirect_to_login_if_required } from '@/global';
 import { useEffect, useRef } from 'react';
 
 const roboto = Roboto({
