@@ -21,7 +21,7 @@ export default function Keyword_listing_component1(props) {
     });
 
     return (
-        <div className='keyword_listing_component secondary_element shade'>
+        <div className='keyword_listing_component secondary_element outline'>
             <Link href={`/keyword/${data.id}`} className='keyword_listing_component_left'>
                 <img className='keyword_listing_component_icon' src={data.image}/>
                 <div className='keyword_listing_component_metadata'>
